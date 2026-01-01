@@ -35,7 +35,7 @@
             </div>
         </div>
         <div class="header-grad text-center shadow">
-            <h5 class="text-white-50" data-translate-key="header_session">SESSIONE: <span id="session-datetime" data-utc-datetime="2026-01-01T13:12:01Z"><span id="session-datetime-display"></span></span></h5>
+            <h5 class="text-white-50"><span data-translate-key="header_session">SESSIONE:</span> <span id="session-datetime" data-utc-datetime="2026-01-01T13:16:05Z"><span id="session-datetime-display"></span></span></h5>
             <h1 class="display-4 fw-bold"><span data-translate-key="header_signal">SEGNALE:</span> <span id="dynamic-signal-value" data-original-signal="signal_flat"></span> <span id="dynamic-signal-emoji">⚪</span></h1>
             <p class="mb-0"><span data-translate-key="header_usa">USA</span> -0.35% | <span data-translate-key="header_jpn">JPN</span> -0.37% | <span data-translate-key="header_fut">FUT</span> -0.01% | VIX 14.46</p>
         </div>
@@ -270,7 +270,7 @@
                 if (translations[lang] && translations[lang][originalSignalKey]) {
                     element.textContent = translations[lang][originalSignalKey];
                 }
-            }); 
+            });
 
             // Update session datetime with selected timezone and current language
             const timezoneSelector = document.getElementById('timezone-selector');
@@ -298,8 +298,7 @@
             populateTimezoneSelector();
             const initialLang = languageSelector ? languageSelector.value : 'en';
             const initialTimezone = timezoneSelector ? timezoneSelector.value : Intl.DateTimeFormat().resolvedOptions().timeZone;
-            applyTranslations(initialLang);
-            updateSessionDatetimeDisplay(initialLang, initialTimezone);
+            applyTranslations(initialLang); // This will call updateSessionDatetimeDisplay internally
         });
 
     </script>
