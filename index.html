@@ -39,7 +39,7 @@
         </div>
         <div class="header-grad text-center shadow">
             <h5 class="text-white-50">
-                <span data-translate-key="header_session">SESSIONE:</span> <span id="session-datetime" data-utc-datetime="2026-01-01T14:59:45Z"><span id="session-datetime-display"></span></span><br>
+                <span data-translate-key="header_session">SESSIONE:</span> <span id="session-datetime" data-utc-datetime="2026-01-01T15:17:56Z"><span id="session-datetime-display"></span></span><br>
                 <span data-translate-key="countdown_label">Prossima esecuzione (9 AM Roma):</span> <span id="countdown" data-target-utc="2026-01-02T08:00:00Z"></span>
             </h5>
             <h1 class="display-4 fw-bold"><span data-translate-key="header_signal">SEGNALE:</span> <span id="dynamic-signal-value" data-original-signal="signal_flat"></span> <span id="dynamic-signal-emoji">⚪</span></h1>
@@ -98,164 +98,7 @@
         </div>
     </div>
     <script>
-        const translations = {
-    "it": {
-        "header_session": "SESSIONE:",
-        "header_signal": "SEGNALE:",
-        "header_usa": "USA",
-        "header_jpn": "JPN",
-        "header_fut": "FUT",
-        "net_profit": "Profitto Netto",
-        "return_percent": "Rendimento %",
-        "max_drawdown": "Max Drawdown",
-        "win_rate": "Win Rate",
-        "profit_factor": "Profit Factor",
-        "total_trades": "Operazioni Totali",
-        "avg_win": "Vincita Media",
-        "avg_loss": "Perdita Media",
-        "sharpe": "Sharpe",
-        "annual_returns_title": "Rendimenti Annui",
-        "annual_returns_year": "ANNO",
-        "annual_returns_pnl_percent": "REND%",
-        "annual_returns_dd_percent": "DD%",
-        "last_trades_title": "Ultimi 50 Trade",
-        "last_trades_date": "DATA",
-        "last_trades_signal_col": "SEGNALE",
-        "last_trades_pnl_col": "PNL",
-        "last_trades_vix_col": "VIX",
-        "signal_long": "LONG",
-        "signal_short": "SHORT",
-        "signal_flat": "FLAT",
-        "language_select_label": "Seleziona Lingua:",
-        "timezone_select_label": "Seleziona Fuso Horario:",
-        "countdown_label": "Prossima esecuzione (9 AM Roma):",
-        "ready_label": "PRONTO!",
-        "executed_label": "ESEGUITO!",
-        "disclaimer_text": "Disclaimer: I dati sono forniti da Yahoo Finance con una latenza di 15 minuti. Questo potrebbe influire sull'accuratezza della generazione del segnale. Utilizzare con cautela.",
-        "usa_close_label": "USA Abs:",
-        "jpn_close_label": "JPN Abs:",
-        "fut_close_label": "FUT Abs:",
-        "stats_9am_title": "Statistiche (9 AM)",
-        "stats_8_30am_title": "Statistiche (8:30 AM)"
-    },
-    "en": {
-        "header_session": "SESSION:",
-        "header_signal": "SIGNAL:",
-        "header_usa": "USA",
-        "header_jpn": "JPN",
-        "header_fut": "FUT",
-        "net_profit": "Net Profit",
-        "return_percent": "Return %",
-        "max_drawdown": "Max Drawdown",
-        "win_rate": "Win Rate",
-        "profit_factor": "Profit Factor",
-        "total_trades": "Total Trades",
-        "avg_win": "Avg Win",
-        "avg_loss": "Avg Loss",
-        "sharpe": "Sharpe",
-        "annual_returns_title": "Annual Returns",
-        "annual_returns_year": "YEAR",
-        "annual_returns_pnl_percent": "RETURN%",
-        "annual_returns_dd_percent": "DD%",
-        "last_trades_title": "Last 50 Trades",
-        "last_trades_date": "DATE",
-        "last_trades_signal_col": "SIGNAL",
-        "last_trades_pnl_col": "PNL",
-        "last_trades_vix_col": "VIX",
-        "signal_long": "LONG",
-        "signal_short": "SHORT",
-        "signal_flat": "FLAT",
-        "language_select_label": "Select Language:",
-        "timezone_select_label": "Select Timezone:",
-        "countdown_label": "Next execution (9 AM Rome):",
-        "ready_label": "READY!",
-        "executed_label": "EXECUTED!",
-        "disclaimer_text": "Disclaimer: Data is provided by Yahoo Finance with a 15-minute delay. This may impact the accuracy of signal generation. Use with caution.",
-        "usa_close_label": "USA Abs:",
-        "jpn_close_label": "JPN Abs:",
-        "fut_close_label": "FUT Abs:",
-        "stats_9am_title": "Statistics (9 AM)",
-        "stats_8_30am_title": "Statistics (8:30 AM)"
-    },
-    "de": {
-        "header_session": "SITZUNG:",
-        "header_signal": "SIGNAL:",
-        "header_usa": "USA",
-        "header_jpn": "JPN",
-        "header_fut": "FUT",
-        "net_profit": "Nettogewinn",
-        "return_percent": "Rendite %",
-        "max_drawdown": "Max Drawdown",
-        "win_rate": "Gewinnrate",
-        "profit_factor": "Profitfaktor",
-        "total_trades": "Gesamtzahl Trades",
-        "avg_win": "Durchschn. Gewinn",
-        "avg_loss": "Durchschn. Verlust",
-        "sharpe": "Sharpe",
-        "annual_returns_title": "Jährliche Renditen",
-        "annual_returns_year": "JAHR",
-        "annual_returns_pnl_percent": "RENDITE%",
-        "annual_returns_dd_percent": "DD%",
-        "last_trades_title": "Letzte 50 Trades",
-        "last_trades_date": "DATUM",
-        "last_trades_signal_col": "SIGNAL",
-        "last_trades_pnl_col": "GEWINN/VERLUST",
-        "last_trades_vix_col": "VIX",
-        "signal_long": "LONG",
-        "signal_short": "SHORT",
-        "signal_flat": "FLAT",
-        "language_select_label": "Sprache auswählen:",
-        "timezone_select_label": "Zeitzone auswählen:",
-        "countdown_label": "Nächste Ausführung (9 Uhr Rom):",
-        "ready_label": "BEREIT!",
-        "executed_label": "AUSGEFÜHRT!",
-        "disclaimer_text": "Haftungsausschluss: Die Daten werden von Yahoo Finance mit einer Verzögerung von 15 Minuten bereitgestellt. Dies kann die Genauigkeit der Signalgenerierung beeinträchtigen. Mit Vorsicht verwenden.",
-        "usa_close_label": "USA Abs:",
-        "jpn_close_label": "JPN Abs:",
-        "fut_close_label": "FUT Abs:",
-        "stats_9am_title": "Statistiken (9 AM)",
-        "stats_8_30am_title": "Statistiken (8:30 AM)"
-    },
-    "es": {
-        "header_session": "SESIÓN:",
-        "header_signal": "SEÑAL:",
-        "header_usa": "USA",
-        "header_jpn": "JPN",
-        "header_fut": "FUT",
-        "net_profit": "Beneficio Neto",
-        "return_percent": "Rendimiento %",
-        "max_drawdown": "Max Drawdown",
-        "win_rate": "Tasa de Éxito",
-        "profit_factor": "Factor de Beneficio",
-        "total_trades": "Total Operaciones",
-        "avg_win": "Ganancia Media",
-        "avg_loss": "Pérdida Media",
-        "sharpe": "Sharpe",
-        "annual_returns_title": "Rendimientos Anuales",
-        "annual_returns_year": "AÑO",
-        "annual_returns_pnl_percent": "REND.%",
-        "annual_returns_dd_percent": "DD%",
-        "last_trades_title": "Últimas 50 Operaciones",
-        "last_trades_date": "FECHA",
-        "last_trades_signal_col": "SEÑAL",
-        "last_trades_pnl_col": "PNL",
-        "last_trades_vix_col": "VIX",
-        "signal_long": "LONG",
-        "signal_short": "SHORT",
-        "signal_flat": "FLAT",
-        "language_select_label": "Seleccionar Idioma:",
-        "timezone_select_label": "Seleccionar Zona Horaria:",
-        "countdown_label": "Próxima ejecución (9 AM Roma):",
-        "ready_label": "LISTO!",
-        "executed_label": "EJECUTADO!",
-        "disclaimer_text": "Descargo de responsabilidad: Los datos son proporcionados por Yahoo Finance con un retraso de 15 minutos. Esto puede afectar la precisión de la generación de señales. Utilizar con precaución.",
-        "usa_close_label": "USA Abs:",
-        "jpn_close_label": "JPN Abs:",
-        "fut_close_label": "FUT Abs:",
-        "stats_9am_title": "Estadísticas (9 AM)",
-        "stats_8_30am_title": "Estadísticas (8:30 AM)"
-    }
-};
+        const translations = {translations_js};
 
         const commonTimezones = [
             'America/New_York',
@@ -323,7 +166,7 @@
 
             let countdownString = '';
             if (days > 0) {
-                countdownString += `${days}d `; // No translation needed for 'd' for day
+                countdownString += `${days}d `;
             }
             countdownString += `${formatTwoDigits(hours)}:${formatTwoDigits(minutes)}:${formatTwoDigits(seconds)}`;
             countdownElement.innerHTML = `<span style="color: #02c076;">${countdownString}</span>`;
@@ -392,14 +235,16 @@
         if (languageSelector) {
             languageSelector.addEventListener('change', (event) => {
                 applyTranslations(event.target.value);
-            }};
+            });
+        }
 
         const timezoneSelector = document.getElementById('timezone-selector');
         if (timezoneSelector) {
             timezoneSelector.addEventListener('change', (event) => {
                 const currentLang = languageSelector ? languageSelector.value : 'en'; // Fallback to English
                 applyTranslations(currentLang); // Re-apply translations to trigger all updates
-            }};
+            });
+        }
 
         // Initial setup on page load
         document.addEventListener('DOMContentLoaded', () => {
@@ -407,7 +252,7 @@
             const initialLang = languageSelector ? languageSelector.value : 'en';
             // Initial call to apply translations and start countdown
             applyTranslations(initialLang);
-        }};
+        });
 
     </script>
 </body>
