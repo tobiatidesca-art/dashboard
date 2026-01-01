@@ -29,9 +29,13 @@
                     <option value="es">Español</option>
                 </select>
             </div>
+            <div class="col-12 col-md-4">
+                <label for="timezone-selector" class="form-label text-white" data-translate-key="timezone_select_label"></label>
+                <select id="timezone-selector" class="form-select bg-dark text-white border-secondary"></select>
+            </div>
         </div>
         <div class="header-grad text-center shadow">
-            <h5 class="text-white-50" data-translate-key="header_session">SESSIONE: <span id="session-datetime" data-utc-datetime="2026-01-01T13:10:43Z">01/01/2026 13:10:43</span></h5>
+            <h5 class="text-white-50" data-translate-key="header_session">SESSIONE: <span id="session-datetime" data-utc-datetime="2026-01-01T13:12:01Z"><span id="session-datetime-display"></span></span></h5>
             <h1 class="display-4 fw-bold"><span data-translate-key="header_signal">SEGNALE:</span> <span id="dynamic-signal-value" data-original-signal="signal_flat"></span> <span id="dynamic-signal-emoji">⚪</span></h1>
             <p class="mb-0"><span data-translate-key="header_usa">USA</span> -0.35% | <span data-translate-key="header_jpn">JPN</span> -0.37% | <span data-translate-key="header_fut">FUT</span> -0.01% | VIX 14.46</p>
         </div>
@@ -97,7 +101,8 @@
         "signal_long": "LONG",
         "signal_short": "SHORT",
         "signal_flat": "FLAT",
-        "language_select_label": "Seleziona Lingua:"
+        "language_select_label": "Seleziona Lingua:",
+        "timezone_select_label": "Seleziona Fuso Orario:"
     },
     "en": {
         "header_session": "SESSION:",
@@ -126,7 +131,8 @@
         "signal_long": "LONG",
         "signal_short": "SHORT",
         "signal_flat": "FLAT",
-        "language_select_label": "Select Language:"
+        "language_select_label": "Select Language:",
+        "timezone_select_label": "Select Timezone:"
     },
     "de": {
         "header_session": "SITZUNG:",
@@ -155,7 +161,8 @@
         "signal_long": "LONG",
         "signal_short": "SHORT",
         "signal_flat": "FLAT",
-        "language_select_label": "Sprache auswählen:"
+        "language_select_label": "Sprache auswählen:",
+        "timezone_select_label": "Zeitzone auswählen:"
     },
     "es": {
         "header_session": "SESIÓN:",
@@ -184,18 +191,61 @@
         "signal_long": "LONG",
         "signal_short": "SHORT",
         "signal_flat": "FLAT",
-        "language_select_label": "Seleccionar Idioma:"
+        "language_select_label": "Seleccionar Idioma:",
+        "timezone_select_label": "Seleccionar Zona Horaria:"
     }
 };
 
-        // Function to format UTC ISO string to local datetime string
-        function formatUtcToLocal(utcIsoString) {
-            try {
-                const date = new Date(utcIsoString);
-                return date.toLocaleString(); // Formats to local date and time
-            } catch (e) {
-                console.error("Error parsing date string:", e);
-                return utcIsoString; // Return original if parsing fails
+        const commonTimezones = [
+            'America/New_York',
+            'America/Los_Angeles',
+            'Europe/London',
+            'Europe/Berlin',
+            'Asia/Tokyo',
+            'Asia/Shanghai',
+            'Australia/Sydney',
+            'UTC'
+        ];
+
+        function populateTimezoneSelector() {
+            const timezoneSelector = document.getElementById('timezone-selector');
+            if (timezoneSelector) {
+                const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                commonTimezones.forEach(tz => {
+                    const option = document.createElement('option');
+                    option.value = tz;
+                    option.textContent = tz;
+                    if (tz === userTimezone) {
+                        option.selected = true;
+                    }
+                    timezoneSelector.appendChild(option);
+                });
+                // Add user's timezone if not in common list
+                if (!commonTimezones.includes(userTimezone)) {
+                    const option = document.createElement('option');
+                    option.value = userTimezone;
+                    option.textContent = userTimezone + ' (Local)';
+                    option.selected = true;
+                    timezoneSelector.appendChild(option);
+                }
+            }
+        }
+
+        function updateSessionDatetimeDisplay(lang, timezone) {
+            const sessionDatetimeSpan = document.getElementById('session-datetime');
+            const sessionDatetimeDisplaySpan = document.getElementById('session-datetime-display');
+            if (sessionDatetimeSpan && sessionDatetimeDisplaySpan) {
+                const utcIsoString = sessionDatetimeSpan.getAttribute('data-utc-datetime');
+                if (utcIsoString) {
+                    const date = new Date(utcIsoString);
+                    const options = {
+                        year: 'numeric', month: '2-digit', day: '2-digit',
+                        hour: '2-digit', minute: '2-digit', second: '2-digit',
+                        timeZone: timezone,
+                        hour12: false // Use 24-hour format
+                    };
+                    sessionDatetimeDisplaySpan.textContent = new Intl.DateTimeFormat(lang, options).format(date);
+                }
             }
         }
 
@@ -220,14 +270,12 @@
                 if (translations[lang] && translations[lang][originalSignalKey]) {
                     element.textContent = translations[lang][originalSignalKey];
                 }
-            });
+            }); 
 
-            // Update session datetime with local timezone
-            const sessionDatetimeSpan = document.getElementById('session-datetime');
-            if (sessionDatetimeSpan) {
-                const utcIsoString = sessionDatetimeSpan.getAttribute('data-utc-datetime');
-                sessionDatetimeSpan.textContent = formatUtcToLocal(utcIsoString);
-            }
+            // Update session datetime with selected timezone and current language
+            const timezoneSelector = document.getElementById('timezone-selector');
+            const selectedTimezone = timezoneSelector ? timezoneSelector.value : Intl.DateTimeFormat().resolvedOptions().timeZone;
+            updateSessionDatetimeDisplay(lang, selectedTimezone);
         }
 
         const languageSelector = document.getElementById('language-selector');
@@ -235,9 +283,25 @@
             languageSelector.addEventListener('change', (event) => {
                 applyTranslations(event.target.value);
             });
-            // Set initial language based on selected option and apply translations
-            applyTranslations(languageSelector.value);
         }
+        
+        const timezoneSelector = document.getElementById('timezone-selector');
+        if (timezoneSelector) {
+            timezoneSelector.addEventListener('change', (event) => {
+                const currentLang = languageSelector ? languageSelector.value : 'en'; // Fallback to English
+                updateSessionDatetimeDisplay(currentLang, event.target.value);
+            });
+        }
+
+        // Initial setup on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            populateTimezoneSelector();
+            const initialLang = languageSelector ? languageSelector.value : 'en';
+            const initialTimezone = timezoneSelector ? timezoneSelector.value : Intl.DateTimeFormat().resolvedOptions().timeZone;
+            applyTranslations(initialLang);
+            updateSessionDatetimeDisplay(initialLang, initialTimezone);
+        });
+
     </script>
 </body>
 </html>
