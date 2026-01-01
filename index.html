@@ -39,14 +39,14 @@
         </div>
         <div class="header-grad text-center shadow">
             <h5 class="text-white-50">
-                <span data-translate-key="header_session">SESSIONE:</span> <span id="session-datetime" data-utc-datetime="2026-01-01T15:29:36Z"><span id="session-datetime-display"></span></span><br>
+                <span data-translate-key="header_session">SESSIONE:</span> <span id="session-datetime" data-utc-datetime="2026-01-01T15:35:13Z"><span id="session-datetime-display"></span></span><br>
                 <span data-translate-key="countdown_label">Prossima esecuzione (9 AM Roma):</span> <span id="countdown" data-target-utc="2026-01-02T08:00:00Z"></span>
             </h5>
             <h1 class="display-4 fw-bold"><span data-translate-key="header_signal">SEGNALE:</span> <span id="dynamic-signal-value" data-original-signal="signal_flat"></span> <span id="dynamic-signal-emoji">⚪</span></h1>
             <p class="mb-0">
                 <span data-translate-key="header_usa">USA</span> -0.35% (<span data-translate-key="usa_close_label">USA Abs:</span> 6896.24) |
                 <span data-translate-key="header_jpn">JPN</span> -0.37% (<span data-translate-key="jpn_close_label">JPN Abs:</span> 50339.48) |
-                <span data-translate-key="header_fut">FUT</span> -0.01% (<span data-translate-key="fut_close_label">FUT Abs:</span> 6944.25) |
+                <span data-translate-key="fut_close_label">FUT</span> -0.01% (<span data-translate-key="fut_close_label">FUT Abs:</span> 6944.25) |
                 VIX 14.46
             </p>
         </div>
@@ -98,7 +98,7 @@
         </div>
     </div>
     <script>
-        const translations = JSON.parse(`{translations_js}`);
+        const translations = JSON.parse('{translations_js}');
 
         const commonTimezones = [
             'America/New_York',
@@ -116,7 +116,6 @@
             const timezoneSelector = document.getElementById('timezone-selector');
             if (timezoneSelector) {
                 const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-                // Add common timezones first
                 commonTimezones.forEach(tz => {
                     const option = document.createElement('option');
                     option.value = tz;
@@ -126,7 +125,6 @@
                     }
                     timezoneSelector.appendChild(option);
                 });
-                // Add user's timezone if not already in common list and not UTC
                 if (!commonTimezones.includes(userTimezone) && userTimezone !== 'UTC') {
                     const option = document.createElement('option');
                     option.value = userTimezone;
@@ -161,7 +159,6 @@
             const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-            // Format to two digits
             const formatTwoDigits = (num) => String(num).padStart(2, '0');
 
             let countdownString = '';
@@ -187,7 +184,7 @@
                         year: 'numeric', month: '2-digit', day: '2-digit',
                         hour: '2-digit', minute: '2-digit', second: '2-digit',
                         timeZone: timezone,
-                        hour12: false // Use 24-hour format
+                        hour12: false
                     };
                     sessionDatetimeDisplaySpan.textContent = new Intl.DateTimeFormat(lang, options).format(date);
                 }
@@ -217,18 +214,15 @@
                 }
             });
 
-            // Update session datetime and countdown with selected timezone and current language
             const timezoneSelector = document.getElementById('timezone-selector');
             const selectedTimezone = timezoneSelector ? timezoneSelector.value : Intl.DateTimeFormat().resolvedOptions().timeZone;
             updateSessionDatetimeDisplay(lang, selectedTimezone);
 
-            // Clear any existing countdown interval
             if (countdownInterval) {
                 clearInterval(countdownInterval);
             }
-            // Set new countdown interval
             countdownInterval = setInterval(() => updateCountdown(lang, selectedTimezone), 1000);
-            updateCountdown(lang, selectedTimezone); // Initial call to display immediately
+            updateCountdown(lang, selectedTimezone);
         }
 
         const languageSelector = document.getElementById('language-selector');
@@ -241,16 +235,14 @@
         const timezoneSelector = document.getElementById('timezone-selector');
         if (timezoneSelector) {
             timezoneSelector.addEventListener('change', (event) => {
-                const currentLang = languageSelector ? languageSelector.value : 'en'; // Fallback to English
+                const currentLang = languageSelector ? languageSelector.value : 'en';
                 applyTranslations(currentLang);
             });
         }
 
-        // Initial setup on page load
         document.addEventListener('DOMContentLoaded', () => {
             populateTimezoneSelector();
             const initialLang = languageSelector ? languageSelector.value : 'en';
-            // Initial call to apply translations and start countdown
             applyTranslations(initialLang);
         });
 
