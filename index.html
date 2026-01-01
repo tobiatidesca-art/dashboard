@@ -38,7 +38,10 @@
             </div>
         </div>
         <div class="header-grad text-center shadow">
-            <h5 class="text-white-50"><span data-translate-key="header_session">SESSIONE:</span> <span id="session-datetime" data-utc-datetime="2026-01-01T14:52:27Z"><span id="session-datetime-display"></span></span></h5>
+            <h5 class="text-white-50">
+                <span data-translate-key="header_session">SESSIONE:</span> <span id="session-datetime" data-utc-datetime="2026-01-01T14:59:45Z"><span id="session-datetime-display"></span></span><br>
+                <span data-translate-key="countdown_label">Prossima esecuzione (9 AM Roma):</span> <span id="countdown" data-target-utc="2026-01-02T08:00:00Z"></span>
+            </h5>
             <h1 class="display-4 fw-bold"><span data-translate-key="header_signal">SEGNALE:</span> <span id="dynamic-signal-value" data-original-signal="signal_flat"></span> <span id="dynamic-signal-emoji">⚪</span></h1>
             <p class="mb-0">
                 <span data-translate-key="header_usa">USA</span> -0.35% (<span data-translate-key="usa_close_label">USA Abs:</span> 6896.24) |
@@ -124,7 +127,10 @@
         "signal_short": "SHORT",
         "signal_flat": "FLAT",
         "language_select_label": "Seleziona Lingua:",
-        "timezone_select_label": "Seleziona Fuso Orario:",
+        "timezone_select_label": "Seleziona Fuso Horario:",
+        "countdown_label": "Prossima esecuzione (9 AM Roma):",
+        "ready_label": "PRONTO!",
+        "executed_label": "ESEGUITO!",
         "disclaimer_text": "Disclaimer: I dati sono forniti da Yahoo Finance con una latenza di 15 minuti. Questo potrebbe influire sull'accuratezza della generazione del segnale. Utilizzare con cautela.",
         "usa_close_label": "USA Abs:",
         "jpn_close_label": "JPN Abs:",
@@ -161,6 +167,9 @@
         "signal_flat": "FLAT",
         "language_select_label": "Select Language:",
         "timezone_select_label": "Select Timezone:",
+        "countdown_label": "Next execution (9 AM Rome):",
+        "ready_label": "READY!",
+        "executed_label": "EXECUTED!",
         "disclaimer_text": "Disclaimer: Data is provided by Yahoo Finance with a 15-minute delay. This may impact the accuracy of signal generation. Use with caution.",
         "usa_close_label": "USA Abs:",
         "jpn_close_label": "JPN Abs:",
@@ -197,6 +206,9 @@
         "signal_flat": "FLAT",
         "language_select_label": "Sprache auswählen:",
         "timezone_select_label": "Zeitzone auswählen:",
+        "countdown_label": "Nächste Ausführung (9 Uhr Rom):",
+        "ready_label": "BEREIT!",
+        "executed_label": "AUSGEFÜHRT!",
         "disclaimer_text": "Haftungsausschluss: Die Daten werden von Yahoo Finance mit einer Verzögerung von 15 Minuten bereitgestellt. Dies kann die Genauigkeit der Signalgenerierung beeinträchtigen. Mit Vorsicht verwenden.",
         "usa_close_label": "USA Abs:",
         "jpn_close_label": "JPN Abs:",
@@ -233,6 +245,9 @@
         "signal_flat": "FLAT",
         "language_select_label": "Seleccionar Idioma:",
         "timezone_select_label": "Seleccionar Zona Horaria:",
+        "countdown_label": "Próxima ejecución (9 AM Roma):",
+        "ready_label": "LISTO!",
+        "executed_label": "EJECUTADO!",
         "disclaimer_text": "Descargo de responsabilidad: Los datos son proporcionados por Yahoo Finance con un retraso de 15 minutos. Esto puede afectar la precisión de la generación de señales. Utilizar con precaución.",
         "usa_close_label": "USA Abs:",
         "jpn_close_label": "JPN Abs:",
@@ -247,6 +262,7 @@
             'America/Los_Angeles',
             'Europe/London',
             'Europe/Berlin',
+            'Europe/Rome',
             'Asia/Tokyo',
             'Asia/Shanghai',
             'Australia/Sydney',
@@ -257,6 +273,7 @@
             const timezoneSelector = document.getElementById('timezone-selector');
             if (timezoneSelector) {
                 const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                // Add common timezones first
                 commonTimezones.forEach(tz => {
                     const option = document.createElement('option');
                     option.value = tz;
@@ -266,14 +283,53 @@
                     }
                     timezoneSelector.appendChild(option);
                 });
-                // Add user's timezone if not in common list
-                if (!commonTimezones.includes(userTimezone)) {
+                // Add user's timezone if not already in common list and not UTC
+                if (!commonTimezones.includes(userTimezone) && userTimezone !== 'UTC') {
                     const option = document.createElement('option');
                     option.value = userTimezone;
                     option.textContent = userTimezone + ' (Local)';
                     option.selected = true;
                     timezoneSelector.appendChild(option);
                 }
+            }
+        }
+
+        let countdownInterval;
+
+        function updateCountdown(lang, timezone) {
+            const countdownElement = document.getElementById('countdown');
+            if (!countdownElement) return;
+
+            const targetUtcIso = countdownElement.getAttribute('data-target-utc');
+            if (!targetUtcIso) return;
+
+            const targetDate = new Date(targetUtcIso);
+            const now = new Date();
+
+            const diff = targetDate.getTime() - now.getTime();
+
+            if (diff < 0) {
+                countdownElement.innerHTML = `<span style="color: #f84960;">${translations[lang]['executed_label']}</span>`;
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            // Format to two digits
+            const formatTwoDigits = (num) => String(num).padStart(2, '0');
+
+            let countdownString = '';
+            if (days > 0) {
+                countdownString += `${days}d `; // No translation needed for 'd' for day
+            }
+            countdownString += `${formatTwoDigits(hours)}:${formatTwoDigits(minutes)}:${formatTwoDigits(seconds)}`;
+            countdownElement.innerHTML = `<span style="color: #02c076;">${countdownString}</span>`;
+
+            if (diff <= 60000) {
+                 countdownElement.innerHTML = `<span style="color: #02c076;">${translations[lang]['ready_label']}</span>`;
             }
         }
 
@@ -318,34 +374,40 @@
                 }
             });
 
-            // Update session datetime with selected timezone and current language
+            // Update session datetime and countdown with selected timezone and current language
             const timezoneSelector = document.getElementById('timezone-selector');
             const selectedTimezone = timezoneSelector ? timezoneSelector.value : Intl.DateTimeFormat().resolvedOptions().timeZone;
             updateSessionDatetimeDisplay(lang, selectedTimezone);
+
+            // Clear any existing countdown interval
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+            // Set new countdown interval
+            countdownInterval = setInterval(() => updateCountdown(lang, selectedTimezone), 1000);
+            updateCountdown(lang, selectedTimezone); // Initial call to display immediately
         }
 
         const languageSelector = document.getElementById('language-selector');
         if (languageSelector) {
             languageSelector.addEventListener('change', (event) => {
                 applyTranslations(event.target.value);
-            });
-        }
+            }};
 
         const timezoneSelector = document.getElementById('timezone-selector');
         if (timezoneSelector) {
             timezoneSelector.addEventListener('change', (event) => {
                 const currentLang = languageSelector ? languageSelector.value : 'en'; // Fallback to English
-                updateSessionDatetimeDisplay(currentLang, event.target.value);
-            });
-        }
+                applyTranslations(currentLang); // Re-apply translations to trigger all updates
+            }};
 
         // Initial setup on page load
         document.addEventListener('DOMContentLoaded', () => {
             populateTimezoneSelector();
             const initialLang = languageSelector ? languageSelector.value : 'en';
-            const initialTimezone = timezoneSelector ? timezoneSelector.value : Intl.DateTimeFormat().resolvedOptions().timeZone;
-            applyTranslations(initialLang); // This will call updateSessionDatetimeDisplay internally
-        });
+            // Initial call to apply translations and start countdown
+            applyTranslations(initialLang);
+        }};
 
     </script>
 </body>
