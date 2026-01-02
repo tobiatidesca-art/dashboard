@@ -16,11 +16,8 @@ except:
 warnings.filterwarnings("ignore")
 
 def get_advanced_data():
-    print("🚀 Recupero dati avanzati e statistiche...")
     tk_live = {'^GSPC': 'USA', '^N225': 'JPN', 'ES=F': 'FUT', '^VIX': 'VIX'}
     vals = {}
-    
-    # DATI LIVE
     d_live = yf.download(list(tk_live.keys()), period="2d", interval="1m", progress=False)
     close_live = d_live['Close'] if isinstance(d_live.columns, pd.MultiIndex) else d_live
 
@@ -37,15 +34,12 @@ def get_advanced_data():
     vals['UPDATE_FULL'] = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
     vals['VIX'] = vals['VIX']
 
-    # DATI STORICI
     tickers = ['^STOXX50E', '^GSPC', '^N225', '^VIX', 'ES=F']
     df_h = yf.download(tickers, period="2y", interval="1d", auto_adjust=True, progress=False)
     prices, opens = df_h['Close'], df_h['Open']
-    
     df = pd.DataFrame(index=prices.index)
     df['EU_O'], df['EU_C'] = opens['^STOXX50E'], prices['^STOXX50E']
     df['USA_C'], df['JAP_C'], df['FUT_C'] = prices['^GSPC'], prices['^N225'], prices['ES=F']
-    
     df['USA_R'] = df['USA_C'].pct_change().shift(1)
     df['JAP_R'] = df['JAP_C'].pct_change()
     df['FUT_Prev'] = df['FUT_C'].shift(1)
@@ -55,7 +49,6 @@ def get_advanced_data():
 
     data_list = []
     mom_series = (df['USA_R'] + df['JAP_R'] + df['R_FUT']) / 3
-    
     for dt, row in df.iterrows():
         d_str = dt.strftime('%d/%m')
         data_list.append({
@@ -79,63 +72,59 @@ html_content = f"""
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body {{ background-color: #05080a; color: #ffffff; font-family: 'Inter', sans-serif; }}
+        body {{ background-color: #05080a; color: #ffffff; font-family: sans-serif; padding: 20px; }}
         .card-pro {{ background: #0f171e; border: 1px solid #1f2937; border-radius: 12px; padding: 20px; margin-bottom: 20px; }}
-        .header-main {{ background: #111827; border-bottom: 3px solid #3b82f6; padding: 25px; border-radius: 12px; margin-bottom: 20px; }}
-        .live-tile {{ background: #000; padding: 15px; border-radius: 10px; border: 1px solid #3b82f6; text-align: center; flex: 1; }}
-        .live-value {{ font-size: 1.5rem; font-weight: 800; display: block; }}
-        .stat-card {{ background: #111827; border-radius: 8px; padding: 10px; border: 1px solid #374151; text-align: center; height: 100%; }}
-        .stat-label {{ font-size: 0.65rem; color: #9ca3af; text-transform: uppercase; font-weight: bold; display: block; }}
-        .stat-value {{ font-size: 1.1rem; font-weight: 700; }}
-        input {{ background: #fff !important; font-weight: 900; text-align: center; border: 2px solid #3b82f6 !important; font-size: 1.2rem; }}
-        .table {{ font-size: 0.82rem; vertical-align: middle; }}
+        .header-main {{ background: #111827; border-bottom: 3px solid #3b82f6; padding: 20px; border-radius: 12px; margin-bottom: 20px; }}
+        .live-tile {{ background: #000; padding: 10px; border-radius: 8px; border: 1px solid #3b82f6; text-align: center; flex: 1; }}
+        .stat-box {{ background: #111827; border: 1px solid #374151; border-radius: 8px; padding: 10px; text-align: center; height: 100%; }}
+        .stat-label {{ font-size: 0.7rem; color: #9ca3af; font-weight: bold; text-transform: uppercase; display: block; }}
+        .stat-val {{ font-size: 1.15rem; font-weight: bold; color: #fff; }}
+        input {{ background: #fff !important; font-weight: bold; text-align: center; border: 2px solid #3b82f6 !important; height: 45px; }}
+        .table {{ font-size: 0.85rem; vertical-align: middle; }}
         .text-success {{ color: #10b981 !important; }}
         .text-danger {{ color: #ef4444 !important; }}
-        .table-responsive {{ max-height: 500px; overflow-y: auto; }}
     </style>
 </head>
-<body class="p-4">
+<body>
     <div class="header-main">
         <h2 class="fw-bold">EUROSTOXX 50 ADVANCED TERMINAL</h2>
         <h4 id="todaySignal" class="text-warning fw-bold">...</h4>
-        <div class="text-secondary small">Aggiornamento: <b>{live['UPDATE_FULL']}</b></div>
-        
-        <div class="d-flex justify-content-between gap-3 mt-4 flex-wrap">
-            <div class="live-tile"><small class="text-info">USA ({live['USA_DT']})</small><span class="live-value">{live['USA']:.2f}</span></div>
-            <div class="live-tile"><small class="text-info">JPN ({live['JPN_DT']})</small><span class="live-value">{live['JPN']:.2f}</span></div>
-            <div class="live-tile"><small class="text-info">FUT ({live['FUT_DT']})</small><span class="live-value">{live['FUT']:.2f}</span></div>
-            <div class="live-tile" style="border-color:#10b981"><small style="color:#10b981">MOMENTUM LIVE</small><span class="live-value" style="color:#10b981">{(live['MOM_LIVE']*100):+.2f}%</span></div>
+        <div class="small text-secondary">Aggiornamento: {live['UPDATE_FULL']}</div>
+        <div class="d-flex gap-2 mt-3 flex-wrap">
+            <div class="live-tile"><small class="text-info d-block">USA ({live['USA_DT']})</small><b>{live['USA']:.2f}</b></div>
+            <div class="live-tile"><small class="text-info d-block">JPN ({live['JPN_DT']})</small><b>{live['JPN']:.2f}</b></div>
+            <div class="live-tile"><small class="text-info d-block">FUT ({live['FUT_DT']})</small><b>{live['FUT']:.2f}</b></div>
+            <div class="live-tile" style="border-color:#10b981"><small style="color:#10b981" class="d-block">MOMENTUM LIVE</small><b>{(live['MOM_LIVE']*100):+.2f}%</b></div>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-xl-4">
+        <div class="col-xl-4 col-lg-5">
             <div class="card-pro">
                 <label class="small text-info d-block text-center mb-2">SOGLIA STRATEGIA %</label>
                 <input type="number" id="threshold" class="form-control mb-4" value="0.30" step="0.05" oninput="runAnalysis()">
+                
                 <div class="row g-2">
-                    <div class="col-6"><div class="stat-card"><span class="stat-label">Net Profit</span><span id="resPnL" class="stat-value">-</span></div></div>
-                    <div class="col-6"><div class="stat-card"><span class="stat-label">Total Trades</span><span id="resTotal" class="stat-value">-</span></div></div>
-                    <div class="col-6"><div class="stat-card"><span class="stat-label text-success">Win Rate</span><span id="resWin" class="stat-value text-success">-</span></div></div>
-                    <div class="col-6"><div class="stat-card"><span class="stat-label">Profit Factor</span><span id="resPF" class="stat-value">-</span></div></div>
-                    <div class="col-6"><div class="stat-card"><span class="stat-label text-danger">Max DD</span><span id="resDD" class="stat-value text-danger">-</span></div></div>
-                    <div class="col-6"><div class="stat-card"><span class="stat-label">Expectancy</span><span id="resExp" class="stat-value">-</span></div></div>
+                    <div class="col-6"><div class="stat-box"><span class="stat-label">PnL Netto</span><div id="resPnL" class="stat-val">-</div></div></div>
+                    <div class="col-6"><div class="stat-box"><span class="stat-label">Trade Totali</span><div id="resTotal" class="stat-val">-</div></div></div>
+                    <div class="col-6"><div class="stat-box"><span class="stat-label">Win Rate</span><div id="resWin" class="stat-val text-success">-</div></div></div>
+                    <div class="col-6"><div class="stat-box"><span class="stat-label">Profit Factor</span><div id="resPF" class="stat-val">-</div></div></div>
+                    <div class="col-6"><div class="stat-box"><span class="stat-label">Max Drawdown</span><div id="resDD" class="stat-val text-danger">-</div></div></div>
+                    <div class="col-6"><div class="stat-box"><span class="stat-label">Expectancy</span><div id="resExp" class="stat-val">-</div></div></div>
                 </div>
             </div>
         </div>
-        <div class="col-xl-8">
-            <div class="card-pro"><canvas id="equityChart" style="height: 335px;"></canvas></div>
+        <div class="col-xl-8 col-lg-7">
+            <div class="card-pro"><canvas id="equityChart" style="height: 320px;"></canvas></div>
         </div>
     </div>
 
     <div class="card-pro">
-        <h5 class="fw-bold text-info mb-3">Dettaglio Operazioni con Timestamp</h5>
-        <div class="table-responsive">
+        <h5 class="text-info fw-bold mb-3">Dettaglio Operazioni con Timestamp</h5>
+        <div class="table-responsive" style="max-height: 500px;">
             <table class="table table-dark table-hover">
                 <thead class="sticky-top bg-dark">
-                    <tr class="text-secondary">
-                        <th>DATA</th><th>AZIONE</th><th>PNL</th><th>MOM %</th><th>USA</th><th>JPN</th><th>FUT</th>
-                    </tr>
+                    <tr><th>DATA</th><th>AZIONE</th><th>PNL</th><th>MOM%</th><th>USA</th><th>JPN</th><th>FUT</th></tr>
                 </thead>
                 <tbody id="tableBody"></tbody>
             </table>
@@ -146,60 +135,57 @@ html_content = f"""
         const rawData = {json.dumps(data_list)};
         const momLive = {float(live['MOM_LIVE'])};
         const vixLive = {float(live['VIX'])};
-        let myChart = null;
+        let chart = null;
 
         function runAnalysis() {{
             const thr = parseFloat(document.getElementById('threshold').value) / 100;
             let cap = 20000; let pnl = 0; let total = 0; let wins = 0;
-            let gWin = 0; let gLoss = 0; let maxCap = 20000; let maxDD = 0;
-            let equity = []; let labels = []; let html = "";
+            let gW = 0; let gL = 0; let maxC = 20000; let mDD = 0;
+            let eq = []; let html = "";
 
-            let sToday = "FLAT ⚪";
-            if (momLive > thr && vixLive < 25) sToday = "LONG 🟢";
-            else if (momLive < -thr && vixLive < 32) sToday = "SHORT 🔴";
-            document.getElementById('todaySignal').innerText = "SEGNALE ATTUALE: " + sToday;
+            let sigT = "FLAT ⚪";
+            if (momLive > thr && vixLive < 25) sigT = "LONG 🟢";
+            else if (momLive < -thr && vixLive < 32) sigT = "SHORT 🔴";
+            document.getElementById('todaySignal').innerText = "SEGNALE ATTUALE: " + sigT;
 
             rawData.forEach(item => {{
                 let s = 0;
                 if (item.mom > thr && item.vix < 25) s = 1;
                 else if (item.mom < -thr && item.vix < 32) s = -1;
 
-                let res = s * item.p_raw;
+                let r = s * item.p_raw;
                 if (s !== 0) {{ 
-                    total++; pnl += res; 
-                    if (res > 0) {{ wins++; gWin += res; }} else {{ gLoss += Math.abs(res); }}
+                    total++; pnl += r; 
+                    if (r > 0) {{ wins++; gW += r; }} else {{ gL += Math.abs(r); }}
                 }}
-                cap += res;
-                equity.push(cap);
-                labels.push(item.date);
-                if (cap > maxCap) maxCap = cap;
-                let dd = ((maxCap - cap) / maxCap) * 100;
-                if (dd > maxDD) maxDD = dd;
+                cap += r;
+                eq.push(cap);
+                if (cap > maxC) maxC = cap;
+                let dd = ((maxC - cap) / maxC) * 100;
+                if (dd > mDD) mDD = dd;
 
                 html = `<tr>
-                    <td><b>${{item.date}}</b></td>
+                    <td>${{item.date}}</td>
                     <td><span class="badge ${{s===0?'bg-secondary':(s===1?'bg-success':'bg-danger')}}">${{s===0?'FLAT':(s===1?'LONG':'SHORT')}}</span></td>
-                    <td class="${{res===0?'text-muted':(res>0?'text-success':'text-danger')}}">${{res===0?'--':res.toFixed(0)+' €'}}</td>
+                    <td class="${{r>0?'text-success':(r<0?'text-danger':'text-muted')}}">${{r===0?'--':r.toFixed(0)+' €'}}</td>
                     <td>${{(item.mom*100).toFixed(2)}}%</td>
-                    <td>${{item.usa}}</td>
-                    <td>${{item.jap}}</td>
-                    <td>${{item.fut}}</td>
+                    <td>${{item.usa}}</td><td>${{item.jap}}</td><td>${{item.fut}}</td>
                 </tr>` + html;
             }});
 
             document.getElementById('resPnL').innerText = pnl.toFixed(0) + " €";
             document.getElementById('resTotal').innerText = total;
             document.getElementById('resWin').innerText = total > 0 ? ((wins/total)*100).toFixed(1) + "%" : "0%";
-            document.getElementById('resPF').innerText = gLoss > 0 ? (gWin/gLoss).toFixed(2) : "N/A";
-            document.getElementById('resDD').innerText = "-" + maxDD.toFixed(1) + "%";
+            document.getElementById('resPF').innerText = gL > 0 ? (gW/gL).toFixed(2) : "N/A";
+            document.getElementById('resDD').innerText = "-" + mDD.toFixed(1) + "%";
             document.getElementById('resExp').innerText = total > 0 ? (pnl/total).toFixed(1) + " €" : "0 €";
             document.getElementById('tableBody').innerHTML = html;
 
-            if (myChart) myChart.destroy();
-            myChart = new Chart(document.getElementById('equityChart'), {{
+            if (chart) chart.destroy();
+            chart = new Chart(document.getElementById('equityChart'), {{
                 type: 'line',
-                data: {{ labels: labels, datasets: [{{ label: 'Equity', data: equity, borderColor: '#3b82f6', borderWidth: 2, pointRadius: 0, fill: true, backgroundColor: 'rgba(59, 130, 246, 0.05)' }}] }},
-                options: {{ responsive: true, maintainAspectRatio: false, plugins: {{ legend: {{ display: false }} }} }}
+                data: {{ labels: rawData.map(x=>x.date), datasets: [{{ label: 'Equity', data: eq, borderColor: '#3b82f6', pointRadius: 0, fill: true, backgroundColor: 'rgba(59, 130, 246, 0.1)' }}] }},
+                options: {{ responsive: true, maintainAspectRatio: false }}
             }});
         }}
         window.onload = runAnalysis;
@@ -212,5 +198,4 @@ repo_name = "tobiatidesca-art/dashboard"
 g = Github(GITHUB_TOKEN)
 repo = g.get_repo(repo_name)
 contents = repo.get_contents("index.html", ref="main")
-repo.update_file(contents.path, "Final Advanced Layout: All Stats + Timestamps", html_content, contents.sha, branch="main")
-print("✅ Terminale Avanzato con Statistiche Ripristinato!")
+repo.update_file(contents.path, "Fix statistics layout and table", html_content, contents.sha, branch="main")
