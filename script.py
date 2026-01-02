@@ -7,7 +7,6 @@ import os
 from datetime import datetime
 from github import Github 
 
-# Recupero Token
 try:
     from google.colab import userdata
     GITHUB_TOKEN = userdata.get('GITHUB_TOKEN')
@@ -17,8 +16,8 @@ except:
 warnings.filterwarnings("ignore")
 
 def get_optimized_data():
-    print("🚀 Elaborazione dati e tabella in corso...")
-    # Dati Live per i box in alto
+    print("🚀 Recupero dati completi...")
+    # Dati LIVE
     tk_live = {'^GSPC': 'USA', '^N225': 'JPN', 'ES=F': 'FUT', '^VIX': 'VIX'}
     vals = {}
     d_live = yf.download(list(tk_live.keys()), period="2d", interval="1m", progress=False)
@@ -27,16 +26,17 @@ def get_optimized_data():
     for t, n in tk_live.items():
         series = close_live[t].dropna()
         curr_p = float(series.iloc[-1])
+        curr_t = series.index[-1].strftime('%d/%m %H:%M')
         d_prev = yf.download(t, period="5d", interval="1d", progress=False)
         if isinstance(d_prev.columns, pd.MultiIndex): d_prev.columns = d_prev.columns.get_level_values(0)
         prev_c = float(d_prev['Close'].iloc[-2])
-        vals[n], vals[n+'_P'], vals[n+'_CHG'] = curr_p, prev_c, (curr_p/prev_c-1)*100
+        vals[n], vals[n+'_DT'], vals[n+'_P'], vals[n+'_CHG'] = curr_p, curr_t, prev_c, (curr_p/prev_c-1)*100
 
     vals['MOM_LIVE'] = (vals['USA_CHG'] + vals['JPN_CHG'] + vals['FUT_CHG']) / 3 / 100
     vals['UPDATE_FULL'] = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
     vals['VIX'] = vals['VIX']
 
-    # Dati Storici per Grafico e Tabella
+    # Dati STORICI
     tickers = ['^STOXX50E', '^GSPC', '^N225', '^VIX', 'ES=F']
     df_h = yf.download(tickers, period="2y", interval="1d", auto_adjust=True, progress=False)
     prices, opens = df_h['Close'], df_h['Open']
@@ -62,7 +62,6 @@ def get_optimized_data():
 
 live, data_list = get_optimized_data()
 
-# HTML con Tabella Trade Inclusa
 html_content = f"""
 <!DOCTYPE html>
 <html lang="it">
@@ -71,51 +70,65 @@ html_content = f"""
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body {{ background-color: #05080a; color: #ffffff; font-family: sans-serif; padding: 20px; }}
+        body {{ background-color: #05080a; color: #ffffff; font-family: 'Inter', sans-serif; }}
         .card-pro {{ background: #0f171e; border: 1px solid #1f2937; border-radius: 12px; padding: 20px; margin-bottom: 20px; }}
-        .live-tile {{ background: #000; padding: 10px; border-radius: 8px; border: 1px solid #3b82f6; text-align: center; flex: 1; }}
-        input {{ background: #fff !important; font-weight: bold; text-align: center; border: 2px solid #3b82f6 !important; }}
-        .table-container {{ max-height: 400px; overflow-y: auto; }}
-        table {{ font-size: 0.9rem; }}
+        .header-main {{ background: #111827; border-bottom: 3px solid #3b82f6; padding: 20px; border-radius: 12px; margin-bottom: 20px; }}
+        .live-tile {{ background: #000; padding: 12px; border-radius: 10px; border: 1px solid #3b82f6; text-align: center; flex: 1; min-width: 140px; }}
+        .stat-card {{ background: #111827; border-radius: 8px; padding: 10px; border: 1px solid #374151; text-align: center; }}
+        .stat-label {{ font-size: 0.65rem; color: #9ca3af; text-transform: uppercase; font-weight: bold; display: block; }}
+        .stat-value {{ font-size: 1.1rem; font-weight: 700; }}
+        input {{ background: #fff !important; font-weight: 900; text-align: center; border: 2px solid #3b82f6 !important; font-size: 1.2rem; }}
+        .table-container {{ max-height: 500px; overflow-y: auto; }}
         .text-success {{ color: #10b981 !important; }}
         .text-danger {{ color: #ef4444 !important; }}
     </style>
 </head>
-<body>
-    <div class="card-pro">
-        <h2 class="fw-bold">EUROSTOXX 50 TERMINAL</h2>
-        <h4 id="todaySignal" class="text-warning fw-bold">Calcolo segnale...</h4>
-        <p class="text-secondary small">Ultimo Aggiornamento: {live['UPDATE_FULL']}</p>
-        <div class="d-flex gap-2 flex-wrap">
-            <div class="live-tile">USA: {live['USA']:.1f}</div>
-            <div class="live-tile">JPN: {live['JPN']:.1f}</div>
-            <div class="live-tile">FUT: {live['FUT']:.1f}</div>
-            <div class="live-tile" style="border-color:#10b981">MOM: {(live['MOM_LIVE']*100):+.2f}%</div>
+<body class="p-3">
+    <div class="header-main">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 class="fw-bold m-0">EUROSTOXX 50 TERMINAL</h2>
+                <h4 id="todaySignal" class="text-warning fw-bold mt-1">Calcolo...</h4>
+                <div class="text-secondary small">Update: <b>{live['UPDATE_FULL']}</b></div>
+            </div>
+            <div class="col-md-4 text-end d-none d-md-block">
+                <span class="badge bg-primary">LIVE DATA FEED</span>
+            </div>
+        </div>
+        <div class="d-flex justify-content-between gap-2 mt-3 flex-wrap">
+            <div class="live-tile"><small class="text-info d-block">USA ({live['USA_DT']})</small><b>{live['USA']:.1f}</b></div>
+            <div class="live-tile"><small class="text-info d-block">JPN ({live['JPN_DT']})</small><b>{live['JPN']:.1f}</b></div>
+            <div class="live-tile"><small class="text-info d-block">FUT ({live['FUT_DT']})</small><b>{live['FUT']:.1f}</b></div>
+            <div class="live-tile" style="border-color:#10b981"><small style="color:#10b981" class="d-block">MOMENTUM</small><b>{(live['MOM_LIVE']*100):+.2f}%</b></div>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-md-4">
+        <div class="col-xl-4">
             <div class="card-pro">
-                <label class="small text-info mb-2">SOGLIA STRATEGIA %</label>
+                <label class="small text-info d-block text-center mb-2">SOGLIA STRATEGIA %</label>
                 <input type="number" id="threshold" class="form-control mb-3" value="0.30" step="0.05" oninput="runAnalysis()">
-                <div class="row g-2 text-center">
-                    <div class="col-6"><small>PnL Netto</small><div id="resPnL" class="fw-bold">-</div></div>
-                    <div class="col-6"><small>Trade Totali</small><div id="resTotal" class="fw-bold">-</div></div>
+                <div class="row g-2">
+                    <div class="col-6"><div class="stat-card"><span class="stat-label">Net Profit</span><span id="resPnL" class="stat-value">-</span></div></div>
+                    <div class="col-6"><div class="stat-card"><span class="stat-label">Total Trades</span><span id="resTotal" class="stat-value">-</span></div></div>
+                    <div class="col-6"><div class="stat-card"><span class="stat-label">Win Rate</span><span id="resWin" class="stat-value text-success">-</span></div></div>
+                    <div class="col-6"><div class="stat-card"><span class="stat-label">Profit Factor</span><span id="resPF" class="stat-value">-</span></div></div>
+                    <div class="col-6"><div class="stat-card"><span class="stat-label text-danger">Max DD</span><span id="resDD" class="stat-value text-danger">-</span></div></div>
+                    <div class="col-6"><div class="stat-card"><span class="stat-label">Expectancy</span><span id="resExp" class="stat-value">-</span></div></div>
                 </div>
             </div>
         </div>
-        <div class="col-md-8">
-            <div class="card-pro"><canvas id="equityChart" style="height: 300px;"></canvas></div>
+        <div class="col-xl-8">
+            <div class="card-pro"><canvas id="equityChart" style="height: 330px;"></canvas></div>
         </div>
     </div>
 
     <div class="card-pro">
-        <h5 class="text-info mb-3">STORICO OPERAZIONI</h5>
+        <h5 class="text-info fw-bold mb-3">REGISTRO OPERAZIONI DETTAGLIATO</h5>
         <div class="table-container">
-            <table class="table table-dark table-striped">
-                <thead>
-                    <tr><th>DATA</th><th>AZIONE</th><th>RISULTATO</th><th>MOM%</th><th>VIX</th></tr>
+            <table class="table table-dark table-hover">
+                <thead class="sticky-top bg-dark">
+                    <tr><th>DATA</th><th>SEGNALE</th><th>RISULTATO (€)</th><th>MOMENTUM</th><th>VIX</th></tr>
                 </thead>
                 <tbody id="tableBody"></tbody>
             </table>
@@ -126,18 +139,19 @@ html_content = f"""
         const rawData = {json.dumps(data_list)};
         const momLive = {float(live['MOM_LIVE'])};
         const vixLive = {float(live['VIX'])};
-        let chart = null;
+        let myChart = null;
 
         function runAnalysis() {{
             const thr = parseFloat(document.getElementById('threshold').value) / 100;
-            let cap = 20000; let pnl = 0; let total = 0;
-            let equity = []; let html = "";
+            let cap = 20000; let pnl = 0; let total = 0; let wins = 0;
+            let grossWin = 0; let grossLoss = 0; let maxCap = 20000; let maxDD = 0;
+            let equity = []; let labels = []; let html = "";
 
-            // Segnale Oggi
-            let sigToday = "FLAT ⚪";
-            if (momLive > thr && vixLive < 25) sigToday = "LONG 🟢";
-            else if (momLive < -thr && vixLive < 32) sigToday = "SHORT 🔴";
-            document.getElementById('todaySignal').innerText = "SEGNALE ATTUALE: " + sigToday;
+            // Segnale Real Time
+            let sToday = "FLAT ⚪";
+            if (momLive > thr && vixLive < 25) sToday = "LONG 🟢";
+            else if (momLive < -thr && vixLive < 32) sToday = "SHORT 🔴";
+            document.getElementById('todaySignal').innerText = "SEGNALE ATTUALE: " + sToday;
 
             rawData.forEach(item => {{
                 let s = 0;
@@ -146,28 +160,40 @@ html_content = f"""
 
                 if (s !== 0) {{
                     total++;
-                    let res = s * item.p_raw;
-                    pnl += res; cap += res;
+                    let tradePnL = s * item.p_raw;
+                    pnl += tradePnL;
+                    cap += tradePnL;
+                    if (tradePnL > 0) {{ wins++; grossWin += tradePnL; }}
+                    else {{ grossLoss += Math.abs(tradePnL); }}
+                    
                     html = `<tr>
                         <td>${{item.d}}</td>
                         <td><span class="badge ${{s===1?'bg-success':'bg-danger'}}">${{s===1?'LONG':'SHORT'}}</span></td>
-                        <td class="${{res>0?'text-success':'text-danger'}}">${{res.toFixed(0)}} €</td>
+                        <td class="fw-bold ${{tradePnL>0?'text-success':'text-danger'}}">${{tradePnL.toFixed(0)}} €</td>
                         <td>${{(item.m*100).toFixed(2)}}%</td>
                         <td>${{item.v.toFixed(1)}}</td>
                     </tr>` + html;
                 }}
                 equity.push(cap);
+                labels.push(item.d);
+                if (cap > maxCap) maxCap = cap;
+                let dd = ((maxCap - cap) / maxCap) * 100;
+                if (dd > maxDD) maxDD = dd;
             }});
 
             document.getElementById('resPnL').innerText = pnl.toFixed(0) + " €";
             document.getElementById('resTotal').innerText = total;
+            document.getElementById('resWin').innerText = total > 0 ? ((wins/total)*100).toFixed(1) + "%" : "0%";
+            document.getElementById('resPF').innerText = grossLoss > 0 ? (grossWin/grossLoss).toFixed(2) : grossWin.toFixed(0);
+            document.getElementById('resDD').innerText = "-" + maxDD.toFixed(1) + "%";
+            document.getElementById('resExp').innerText = total > 0 ? (pnl/total).toFixed(1) + " €" : "0 €";
             document.getElementById('tableBody').innerHTML = html;
 
-            if (chart) chart.destroy();
-            chart = new Chart(document.getElementById('equityChart'), {{
+            if (myChart) myChart.destroy();
+            myChart = new Chart(document.getElementById('equityChart'), {{
                 type: 'line',
-                data: {{ labels: rawData.map(x => x.d), datasets: [{{ label: 'Equity', data: equity, borderColor: '#3b82f6', pointRadius: 0, fill: false }}] }},
-                options: {{ responsive: true, maintainAspectRatio: false }}
+                data: {{ labels: labels, datasets: [{{ label: 'Equity (€)', data: equity, borderColor: '#3b82f6', borderWidth: 2, pointRadius: 0, fill: true, backgroundColor: 'rgba(59, 130, 246, 0.05)' }}] }},
+                options: {{ responsive: true, maintainAspectRatio: false, plugins: {{ legend: {{ display: false }} }} }}
             }});
         }}
         window.onload = runAnalysis;
@@ -176,10 +202,9 @@ html_content = f"""
 </html>
 """
 
-# Upload su GitHub
 repo_name = "tobiatidesca-art/dashboard"
 g = Github(GITHUB_TOKEN)
 repo = g.get_repo(repo_name)
 contents = repo.get_contents("index.html", ref="main")
-repo.update_file(contents.path, "Update dashboard with trade table", html_content, contents.sha, branch="main")
-print("✅ Dashboard aggiornata con tabella trade!")
+repo.update_file(contents.path, "Full Restore: All Stats & Time Labels", html_content, contents.sha, branch="main")
+print("✅ Dashboard ripristinata con tutte le funzioni!")
