@@ -5,541 +5,542 @@
     <meta charset="UTF-8">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #0b0e11; color: #eaecef; font-family: 'Inter', system-ui, sans-serif; }
+        body { background-color: #0b0e11; color: #eaecef; font-family: 'Inter', sans-serif; }
         .card-pro { background: #1e2329; border: 1px solid #2d3139; border-radius: 12px; padding: 25px; margin-bottom: 20px; }
         .header-grad { background: linear-gradient(135deg, #00d4ff 0%, #0055ff 100%); padding: 30px; border-radius: 12px; margin-bottom: 25px; text-align: center; color: white; }
         .table { color: #eaecef; vertical-align: middle; border-color: #2d3139; font-size: 0.85rem; }
-        .table thead th { background-color: #2b3139; color: #929aa5; font-weight: 500; border-bottom: 2px solid #363c4e; }
+        .table thead th { background-color: #2b3139; color: #929aa5; font-weight: 500; }
         small { font-size: 0.7rem; display: block; }
+        .text-info { color: #00d4ff !important; }
         .text-warning { color: #f0b90b !important; }
     </style>
 </head>
 <body class="p-4">
     <div class="container-fluid">
         <div class="header-grad shadow-lg">
-            <h5 class="opacity-75">LIVE SESSION — 02/01/2026 09:43</h5>
-            <h1 class="display-3 fw-bold my-3">FLAT ⚪</h1>
+            <h5 class="opacity-75">SISTEMA TRADING EUROSTOXX 50 — 09:45</h5>
+            <h1 class="display-2 fw-bold my-3">FLAT ⚪</h1>
             <div class="d-flex justify-content-center gap-4 flex-wrap mt-2">
                 <div>USA: <b>6845.77</b> <small>31/12 20:59</small></div>
                 <div>JPN: <b>50356.87</b> <small>30/12 06:29</small></div>
-                <div>FUT: <b>6936.00</b> <small>02/01 09:33</small></div>
-                <div>VIX: <b>14.81</b> <small>02/01 09:28</small></div>
+                <div>FUT: <b>6935.50</b> <small>02/01 09:35</small></div>
+                <div>VIX: <b>14.78</b> <small>02/01 09:30</small></div>
             </div>
         </div>
 
         <div class="card-pro shadow">
-            <h4 class="mb-4">Dettaglio Ultime 50 Operazioni</h4>
+            <h4 class="mb-4">Log Analisi Operativa (Ultime 50 Sessioni)</h4>
             <div class="table-responsive">
                 <table class="table table-dark table-hover text-center">
                     <thead>
                         <tr>
-                            <th>Data Sessione</th>
-                            <th>Segnale</th>
-                            <th>Profit/Loss</th>
-                            <th>USA (^GSPC)</th>
-                            <th>JPN (^N225)</th>
-                            <th>FUT (ES=F)</th>
-                            <th>VIX (^VIX)</th>
+                            <th>DATA SESSIONE</th>
+                            <th>SIGNAL</th>
+                            <th>P/L RISULTATO</th>
+                            <th>USA (CHIUSURA T-1)</th>
+                            <th>JPN (CHIUSURA)</th>
+                            <th>FUT (MATTINA)</th>
+                            <th>VIX (MATTINA)</th>
                         </tr>
                     </thead>
                     <tbody>
                         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">30/12/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">30/12/2025</td>
             <td><span class="badge" style="background-color:#404854; width: 65px;">FLAT</span></td>
             <td class="fw-bold" style="color:white; border-right: 1px solid #363c4e;">—</td>
-            <td>6896.24<br><small class="text-secondary">30/12 (Chi)</small></td>
-            <td>50339.48<br><small class="text-secondary">30/12 (Chi)</small></td>
+            <td>6896.24<br><small class="text-info">29/12 (Chi)</small></td>
+            <td>50339.48<br><small class="text-info">30/12 (Chi)</small></td>
             <td>6944.25<br><small class="text-warning">30/12 09:00</small></td>
             <td>14.46<br><small class="text-warning">30/12 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">29/12/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">29/12/2025</td>
             <td><span class="badge" style="background-color:#404854; width: 65px;">FLAT</span></td>
             <td class="fw-bold" style="color:white; border-right: 1px solid #363c4e;">—</td>
-            <td>6905.74<br><small class="text-secondary">29/12 (Chi)</small></td>
-            <td>50526.92<br><small class="text-secondary">29/12 (Chi)</small></td>
+            <td>6905.74<br><small class="text-info">28/12 (Chi)</small></td>
+            <td>50526.92<br><small class="text-info">29/12 (Chi)</small></td>
             <td>6955.00<br><small class="text-warning">29/12 09:00</small></td>
             <td>14.84<br><small class="text-warning">29/12 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">23/12/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">23/12/2025</td>
             <td><span class="badge" style="background-color:#404854; width: 65px;">FLAT</span></td>
             <td class="fw-bold" style="color:white; border-right: 1px solid #363c4e;">—</td>
-            <td>6909.79<br><small class="text-secondary">23/12 (Chi)</small></td>
-            <td>50412.87<br><small class="text-secondary">23/12 (Chi)</small></td>
+            <td>6909.79<br><small class="text-info">22/12 (Chi)</small></td>
+            <td>50412.87<br><small class="text-info">23/12 (Chi)</small></td>
             <td>6961.00<br><small class="text-warning">23/12 09:00</small></td>
             <td>14.01<br><small class="text-warning">23/12 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">22/12/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">22/12/2025</td>
             <td><span class="badge" style="background-color:#02c076; width: 65px;">LONG</span></td>
             <td class="fw-bold" style="color:#f84960; border-right: 1px solid #363c4e;">-107.00 €</td>
-            <td>6878.49<br><small class="text-secondary">22/12 (Chi)</small></td>
-            <td>50402.39<br><small class="text-secondary">22/12 (Chi)</small></td>
+            <td>6878.49<br><small class="text-info">21/12 (Chi)</small></td>
+            <td>50402.39<br><small class="text-info">22/12 (Chi)</small></td>
             <td>6930.25<br><small class="text-warning">22/12 09:00</small></td>
             <td>15.07<br><small class="text-warning">22/12 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">19/12/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">19/12/2025</td>
             <td><span class="badge" style="background-color:#02c076; width: 65px;">LONG</span></td>
             <td class="fw-bold" style="color:#02c076; border-right: 1px solid #363c4e;">+182.10 €</td>
-            <td>6834.50<br><small class="text-secondary">19/12 (Chi)</small></td>
-            <td>49507.21<br><small class="text-secondary">19/12 (Chi)</small></td>
+            <td>6834.50<br><small class="text-info">18/12 (Chi)</small></td>
+            <td>49507.21<br><small class="text-info">19/12 (Chi)</small></td>
             <td>6796.54<br><small class="text-warning">19/12 09:00</small></td>
             <td>16.15<br><small class="text-warning">19/12 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">18/12/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">18/12/2025</td>
             <td><span class="badge" style="background-color:#f84960; width: 65px;">SHORT</span></td>
             <td class="fw-bold" style="color:#f84960; border-right: 1px solid #363c4e;">-577.10 €</td>
-            <td>6774.76<br><small class="text-secondary">18/12 (Chi)</small></td>
-            <td>49001.50<br><small class="text-secondary">18/12 (Chi)</small></td>
+            <td>6774.76<br><small class="text-info">17/12 (Chi)</small></td>
+            <td>49001.50<br><small class="text-info">18/12 (Chi)</small></td>
             <td>6778.25<br><small class="text-warning">18/12 09:00</small></td>
             <td>17.35<br><small class="text-warning">18/12 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">17/12/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">17/12/2025</td>
             <td><span class="badge" style="background-color:#404854; width: 65px;">FLAT</span></td>
             <td class="fw-bold" style="color:white; border-right: 1px solid #363c4e;">—</td>
-            <td>6721.43<br><small class="text-secondary">17/12 (Chi)</small></td>
-            <td>49512.28<br><small class="text-secondary">17/12 (Chi)</small></td>
+            <td>6721.43<br><small class="text-info">16/12 (Chi)</small></td>
+            <td>49512.28<br><small class="text-info">17/12 (Chi)</small></td>
             <td>6726.50<br><small class="text-warning">17/12 09:00</small></td>
             <td>16.23<br><small class="text-warning">17/12 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">16/12/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">16/12/2025</td>
             <td><span class="badge" style="background-color:#f84960; width: 65px;">SHORT</span></td>
             <td class="fw-bold" style="color:#02c076; border-right: 1px solid #363c4e;">+379.90 €</td>
-            <td>6800.26<br><small class="text-secondary">16/12 (Chi)</small></td>
-            <td>49383.29<br><small class="text-secondary">16/12 (Chi)</small></td>
+            <td>6800.26<br><small class="text-info">15/12 (Chi)</small></td>
+            <td>49383.29<br><small class="text-info">16/12 (Chi)</small></td>
             <td>6801.00<br><small class="text-warning">16/12 09:00</small></td>
             <td>17.29<br><small class="text-warning">16/12 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">15/12/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">15/12/2025</td>
             <td><span class="badge" style="background-color:#f84960; width: 65px;">SHORT</span></td>
             <td class="fw-bold" style="color:#f84960; border-right: 1px solid #363c4e;">-283.60 €</td>
-            <td>6816.51<br><small class="text-secondary">15/12 (Chi)</small></td>
-            <td>50168.11<br><small class="text-secondary">15/12 (Chi)</small></td>
+            <td>6816.51<br><small class="text-info">14/12 (Chi)</small></td>
+            <td>50168.11<br><small class="text-info">15/12 (Chi)</small></td>
             <td>6823.00<br><small class="text-warning">15/12 09:00</small></td>
             <td>16.38<br><small class="text-warning">15/12 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">12/12/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">12/12/2025</td>
             <td><span class="badge" style="background-color:#02c076; width: 65px;">LONG</span></td>
             <td class="fw-bold" style="color:#f84960; border-right: 1px solid #363c4e;">-461.30 €</td>
-            <td>6827.41<br><small class="text-secondary">12/12 (Chi)</small></td>
-            <td>50836.55<br><small class="text-secondary">12/12 (Chi)</small></td>
+            <td>6827.41<br><small class="text-info">11/12 (Chi)</small></td>
+            <td>50836.55<br><small class="text-info">12/12 (Chi)</small></td>
             <td>6830.75<br><small class="text-warning">12/12 09:00</small></td>
             <td>15.19<br><small class="text-warning">12/12 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">11/12/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">11/12/2025</td>
             <td><span class="badge" style="background-color:#404854; width: 65px;">FLAT</span></td>
             <td class="fw-bold" style="color:white; border-right: 1px solid #363c4e;">—</td>
-            <td>6901.00<br><small class="text-secondary">11/12 (Chi)</small></td>
-            <td>50148.82<br><small class="text-secondary">11/12 (Chi)</small></td>
+            <td>6901.00<br><small class="text-info">10/12 (Chi)</small></td>
+            <td>50148.82<br><small class="text-info">11/12 (Chi)</small></td>
             <td>6907.25<br><small class="text-warning">11/12 09:00</small></td>
             <td>16.12<br><small class="text-warning">11/12 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">10/12/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">10/12/2025</td>
             <td><span class="badge" style="background-color:#404854; width: 65px;">FLAT</span></td>
             <td class="fw-bold" style="color:white; border-right: 1px solid #363c4e;">—</td>
-            <td>6886.68<br><small class="text-secondary">10/12 (Chi)</small></td>
-            <td>50602.80<br><small class="text-secondary">10/12 (Chi)</small></td>
+            <td>6886.68<br><small class="text-info">09/12 (Chi)</small></td>
+            <td>50602.80<br><small class="text-info">10/12 (Chi)</small></td>
             <td>6891.75<br><small class="text-warning">10/12 09:00</small></td>
             <td>17.14<br><small class="text-warning">10/12 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">09/12/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">09/12/2025</td>
             <td><span class="badge" style="background-color:#404854; width: 65px;">FLAT</span></td>
             <td class="fw-bold" style="color:white; border-right: 1px solid #363c4e;">—</td>
-            <td>6840.51<br><small class="text-secondary">09/12 (Chi)</small></td>
-            <td>50655.10<br><small class="text-secondary">09/12 (Chi)</small></td>
+            <td>6840.51<br><small class="text-info">08/12 (Chi)</small></td>
+            <td>50655.10<br><small class="text-info">09/12 (Chi)</small></td>
             <td>6848.25<br><small class="text-warning">09/12 09:00</small></td>
             <td>16.83<br><small class="text-warning">09/12 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">08/12/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">08/12/2025</td>
             <td><span class="badge" style="background-color:#404854; width: 65px;">FLAT</span></td>
             <td class="fw-bold" style="color:white; border-right: 1px solid #363c4e;">—</td>
-            <td>6846.51<br><small class="text-secondary">08/12 (Chi)</small></td>
-            <td>50581.94<br><small class="text-secondary">08/12 (Chi)</small></td>
+            <td>6846.51<br><small class="text-info">07/12 (Chi)</small></td>
+            <td>50581.94<br><small class="text-info">08/12 (Chi)</small></td>
             <td>6855.75<br><small class="text-warning">08/12 09:00</small></td>
             <td>16.23<br><small class="text-warning">08/12 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">05/12/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">05/12/2025</td>
             <td><span class="badge" style="background-color:#404854; width: 65px;">FLAT</span></td>
             <td class="fw-bold" style="color:white; border-right: 1px solid #363c4e;">—</td>
-            <td>6870.40<br><small class="text-secondary">05/12 (Chi)</small></td>
-            <td>50491.87<br><small class="text-secondary">05/12 (Chi)</small></td>
+            <td>6870.40<br><small class="text-info">04/12 (Chi)</small></td>
+            <td>50491.87<br><small class="text-info">05/12 (Chi)</small></td>
             <td>6878.25<br><small class="text-warning">05/12 09:00</small></td>
             <td>15.75<br><small class="text-warning">05/12 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">04/12/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">04/12/2025</td>
             <td><span class="badge" style="background-color:#02c076; width: 65px;">LONG</span></td>
             <td class="fw-bold" style="color:#02c076; border-right: 1px solid #363c4e;">+82.50 €</td>
-            <td>6857.12<br><small class="text-secondary">04/12 (Chi)</small></td>
-            <td>51028.42<br><small class="text-secondary">04/12 (Chi)</small></td>
+            <td>6857.12<br><small class="text-info">03/12 (Chi)</small></td>
+            <td>51028.42<br><small class="text-info">04/12 (Chi)</small></td>
             <td>6866.75<br><small class="text-warning">04/12 09:00</small></td>
             <td>16.14<br><small class="text-warning">04/12 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">03/12/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">03/12/2025</td>
             <td><span class="badge" style="background-color:#02c076; width: 65px;">LONG</span></td>
             <td class="fw-bold" style="color:#f84960; border-right: 1px solid #363c4e;">-16.90 €</td>
-            <td>6849.72<br><small class="text-secondary">03/12 (Chi)</small></td>
-            <td>49864.68<br><small class="text-secondary">03/12 (Chi)</small></td>
+            <td>6849.72<br><small class="text-info">02/12 (Chi)</small></td>
+            <td>49864.68<br><small class="text-info">03/12 (Chi)</small></td>
             <td>6862.00<br><small class="text-warning">03/12 09:00</small></td>
             <td>16.54<br><small class="text-warning">03/12 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">02/12/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">02/12/2025</td>
             <td><span class="badge" style="background-color:#404854; width: 65px;">FLAT</span></td>
             <td class="fw-bold" style="color:white; border-right: 1px solid #363c4e;">—</td>
-            <td>6829.37<br><small class="text-secondary">02/12 (Chi)</small></td>
-            <td>49303.45<br><small class="text-secondary">02/12 (Chi)</small></td>
+            <td>6829.37<br><small class="text-info">01/12 (Chi)</small></td>
+            <td>49303.45<br><small class="text-info">02/12 (Chi)</small></td>
             <td>6840.25<br><small class="text-warning">02/12 09:00</small></td>
             <td>16.90<br><small class="text-warning">02/12 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">01/12/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">01/12/2025</td>
             <td><span class="badge" style="background-color:#f84960; width: 65px;">SHORT</span></td>
             <td class="fw-bold" style="color:#f84960; border-right: 1px solid #363c4e;">-75.70 €</td>
-            <td>6812.63<br><small class="text-secondary">01/12 (Chi)</small></td>
-            <td>49303.28<br><small class="text-secondary">01/12 (Chi)</small></td>
+            <td>6812.63<br><small class="text-info">30/11 (Chi)</small></td>
+            <td>49303.28<br><small class="text-info">01/12 (Chi)</small></td>
             <td>6826.75<br><small class="text-warning">01/12 09:00</small></td>
             <td>18.11<br><small class="text-warning">01/12 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">28/11/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">28/11/2025</td>
             <td><span class="badge" style="background-color:#404854; width: 65px;">FLAT</span></td>
             <td class="fw-bold" style="color:white; border-right: 1px solid #363c4e;">—</td>
-            <td>6849.09<br><small class="text-secondary">28/11 (Chi)</small></td>
-            <td>50253.91<br><small class="text-secondary">28/11 (Chi)</small></td>
+            <td>6849.09<br><small class="text-info">27/11 (Chi)</small></td>
+            <td>50253.91<br><small class="text-info">28/11 (Chi)</small></td>
             <td>6859.50<br><small class="text-warning">28/11 09:00</small></td>
             <td>17.44<br><small class="text-warning">28/11 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">26/11/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">26/11/2025</td>
             <td><span class="badge" style="background-color:#02c076; width: 65px;">LONG</span></td>
             <td class="fw-bold" style="color:#02c076; border-right: 1px solid #363c4e;">+717.60 €</td>
-            <td>6812.61<br><small class="text-secondary">26/11 (Chi)</small></td>
-            <td>49559.07<br><small class="text-secondary">26/11 (Chi)</small></td>
+            <td>6812.61<br><small class="text-info">25/11 (Chi)</small></td>
+            <td>49559.07<br><small class="text-info">26/11 (Chi)</small></td>
             <td>6828.00<br><small class="text-warning">26/11 09:00</small></td>
             <td>18.38<br><small class="text-warning">26/11 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">25/11/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">25/11/2025</td>
             <td><span class="badge" style="background-color:#02c076; width: 65px;">LONG</span></td>
             <td class="fw-bold" style="color:#02c076; border-right: 1px solid #363c4e;">+453.00 €</td>
-            <td>6765.88<br><small class="text-secondary">25/11 (Chi)</small></td>
-            <td>48659.52<br><small class="text-secondary">25/11 (Chi)</small></td>
+            <td>6765.88<br><small class="text-info">24/11 (Chi)</small></td>
+            <td>48659.52<br><small class="text-info">25/11 (Chi)</small></td>
             <td>6781.50<br><small class="text-warning">25/11 09:00</small></td>
             <td>20.69<br><small class="text-warning">25/11 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">21/11/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">21/11/2025</td>
             <td><span class="badge" style="background-color:#f84960; width: 65px;">SHORT</span></td>
             <td class="fw-bold" style="color:#02c076; border-right: 1px solid #363c4e;">+225.80 €</td>
-            <td>6602.99<br><small class="text-secondary">21/11 (Chi)</small></td>
-            <td>48625.88<br><small class="text-secondary">21/11 (Chi)</small></td>
+            <td>6602.99<br><small class="text-info">20/11 (Chi)</small></td>
+            <td>48625.88<br><small class="text-info">21/11 (Chi)</small></td>
             <td>6620.25<br><small class="text-warning">21/11 09:00</small></td>
             <td>26.52<br><small class="text-warning">21/11 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">20/11/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">20/11/2025</td>
             <td><span class="badge" style="background-color:#02c076; width: 65px;">LONG</span></td>
             <td class="fw-bold" style="color:#02c076; border-right: 1px solid #363c4e;">+4.50 €</td>
-            <td>6538.76<br><small class="text-secondary">20/11 (Chi)</small></td>
-            <td>49823.94<br><small class="text-secondary">20/11 (Chi)</small></td>
+            <td>6538.76<br><small class="text-info">19/11 (Chi)</small></td>
+            <td>49823.94<br><small class="text-info">20/11 (Chi)</small></td>
             <td>6557.50<br><small class="text-warning">20/11 09:00</small></td>
             <td>21.11<br><small class="text-warning">20/11 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">19/11/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">19/11/2025</td>
             <td><span class="badge" style="background-color:#404854; width: 65px;">FLAT</span></td>
             <td class="fw-bold" style="color:white; border-right: 1px solid #363c4e;">—</td>
-            <td>6642.16<br><small class="text-secondary">19/11 (Chi)</small></td>
-            <td>48537.70<br><small class="text-secondary">19/11 (Chi)</small></td>
+            <td>6642.16<br><small class="text-info">18/11 (Chi)</small></td>
+            <td>48537.70<br><small class="text-info">19/11 (Chi)</small></td>
             <td>6661.50<br><small class="text-warning">19/11 09:00</small></td>
             <td>23.96<br><small class="text-warning">19/11 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">18/11/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">18/11/2025</td>
             <td><span class="badge" style="background-color:#f84960; width: 65px;">SHORT</span></td>
             <td class="fw-bold" style="color:#02c076; border-right: 1px solid #363c4e;">+760.40 €</td>
-            <td>6617.32<br><small class="text-secondary">18/11 (Chi)</small></td>
-            <td>48702.98<br><small class="text-secondary">18/11 (Chi)</small></td>
+            <td>6617.32<br><small class="text-info">17/11 (Chi)</small></td>
+            <td>48702.98<br><small class="text-info">18/11 (Chi)</small></td>
             <td>6639.75<br><small class="text-warning">18/11 09:00</small></td>
             <td>23.03<br><small class="text-warning">18/11 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">17/11/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">17/11/2025</td>
             <td><span class="badge" style="background-color:#404854; width: 65px;">FLAT</span></td>
             <td class="fw-bold" style="color:white; border-right: 1px solid #363c4e;">—</td>
-            <td>6672.41<br><small class="text-secondary">17/11 (Chi)</small></td>
-            <td>50323.91<br><small class="text-secondary">17/11 (Chi)</small></td>
+            <td>6672.41<br><small class="text-info">16/11 (Chi)</small></td>
+            <td>50323.91<br><small class="text-info">17/11 (Chi)</small></td>
             <td>6692.00<br><small class="text-warning">17/11 09:00</small></td>
             <td>19.90<br><small class="text-warning">17/11 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">14/11/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">14/11/2025</td>
             <td><span class="badge" style="background-color:#f84960; width: 65px;">SHORT</span></td>
             <td class="fw-bold" style="color:#02c076; border-right: 1px solid #363c4e;">+373.90 €</td>
-            <td>6734.11<br><small class="text-secondary">14/11 (Chi)</small></td>
-            <td>50376.53<br><small class="text-secondary">14/11 (Chi)</small></td>
+            <td>6734.11<br><small class="text-info">13/11 (Chi)</small></td>
+            <td>50376.53<br><small class="text-info">14/11 (Chi)</small></td>
             <td>6755.25<br><small class="text-warning">14/11 09:00</small></td>
             <td>21.34<br><small class="text-warning">14/11 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">13/11/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">13/11/2025</td>
             <td><span class="badge" style="background-color:#404854; width: 65px;">FLAT</span></td>
             <td class="fw-bold" style="color:white; border-right: 1px solid #363c4e;">—</td>
-            <td>6737.49<br><small class="text-secondary">13/11 (Chi)</small></td>
-            <td>51281.83<br><small class="text-secondary">13/11 (Chi)</small></td>
+            <td>6737.49<br><small class="text-info">12/11 (Chi)</small></td>
+            <td>51281.83<br><small class="text-info">13/11 (Chi)</small></td>
             <td>6760.00<br><small class="text-warning">13/11 09:00</small></td>
             <td>17.88<br><small class="text-warning">13/11 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">12/11/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">12/11/2025</td>
             <td><span class="badge" style="background-color:#02c076; width: 65px;">LONG</span></td>
             <td class="fw-bold" style="color:#02c076; border-right: 1px solid #363c4e;">+526.30 €</td>
-            <td>6850.92<br><small class="text-secondary">12/11 (Chi)</small></td>
-            <td>51063.31<br><small class="text-secondary">12/11 (Chi)</small></td>
+            <td>6850.92<br><small class="text-info">11/11 (Chi)</small></td>
+            <td>51063.31<br><small class="text-info">12/11 (Chi)</small></td>
             <td>6875.75<br><small class="text-warning">12/11 09:00</small></td>
             <td>17.17<br><small class="text-warning">12/11 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">11/11/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">11/11/2025</td>
             <td><span class="badge" style="background-color:#02c076; width: 65px;">LONG</span></td>
             <td class="fw-bold" style="color:#02c076; border-right: 1px solid #363c4e;">+547.60 €</td>
-            <td>6846.61<br><small class="text-secondary">11/11 (Chi)</small></td>
-            <td>50842.93<br><small class="text-secondary">11/11 (Chi)</small></td>
+            <td>6846.61<br><small class="text-info">10/11 (Chi)</small></td>
+            <td>50842.93<br><small class="text-info">11/11 (Chi)</small></td>
             <td>6871.50<br><small class="text-warning">11/11 09:00</small></td>
             <td>17.98<br><small class="text-warning">11/11 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">10/11/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">10/11/2025</td>
             <td><span class="badge" style="background-color:#02c076; width: 65px;">LONG</span></td>
             <td class="fw-bold" style="color:#02c076; border-right: 1px solid #363c4e;">+557.90 €</td>
-            <td>6832.43<br><small class="text-secondary">10/11 (Chi)</small></td>
-            <td>50911.76<br><small class="text-secondary">10/11 (Chi)</small></td>
+            <td>6832.43<br><small class="text-info">09/11 (Chi)</small></td>
+            <td>50911.76<br><small class="text-info">10/11 (Chi)</small></td>
             <td>6856.75<br><small class="text-warning">10/11 09:00</small></td>
             <td>18.64<br><small class="text-warning">10/11 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">07/11/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">07/11/2025</td>
             <td><span class="badge" style="background-color:#f84960; width: 65px;">SHORT</span></td>
             <td class="fw-bold" style="color:#02c076; border-right: 1px solid #363c4e;">+512.90 €</td>
-            <td>6728.80<br><small class="text-secondary">07/11 (Chi)</small></td>
-            <td>50276.37<br><small class="text-secondary">07/11 (Chi)</small></td>
+            <td>6728.80<br><small class="text-info">06/11 (Chi)</small></td>
+            <td>50276.37<br><small class="text-info">07/11 (Chi)</small></td>
             <td>6753.75<br><small class="text-warning">07/11 09:00</small></td>
             <td>19.95<br><small class="text-warning">07/11 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">06/11/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">06/11/2025</td>
             <td><span class="badge" style="background-color:#02c076; width: 65px;">LONG</span></td>
             <td class="fw-bold" style="color:#f84960; border-right: 1px solid #363c4e;">-544.10 €</td>
-            <td>6720.32<br><small class="text-secondary">06/11 (Chi)</small></td>
-            <td>50883.68<br><small class="text-secondary">06/11 (Chi)</small></td>
+            <td>6720.32<br><small class="text-info">05/11 (Chi)</small></td>
+            <td>50883.68<br><small class="text-info">06/11 (Chi)</small></td>
             <td>6747.50<br><small class="text-warning">06/11 09:00</small></td>
             <td>18.12<br><small class="text-warning">06/11 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">05/11/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">05/11/2025</td>
             <td><span class="badge" style="background-color:#f84960; width: 65px;">SHORT</span></td>
             <td class="fw-bold" style="color:#f84960; border-right: 1px solid #363c4e;">-499.20 €</td>
-            <td>6796.29<br><small class="text-secondary">05/11 (Chi)</small></td>
-            <td>50212.27<br><small class="text-secondary">05/11 (Chi)</small></td>
+            <td>6796.29<br><small class="text-info">04/11 (Chi)</small></td>
+            <td>50212.27<br><small class="text-info">05/11 (Chi)</small></td>
             <td>6825.25<br><small class="text-warning">05/11 09:00</small></td>
             <td>19.44<br><small class="text-warning">05/11 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">04/11/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">04/11/2025</td>
             <td><span class="badge" style="background-color:#f84960; width: 65px;">SHORT</span></td>
             <td class="fw-bold" style="color:#f84960; border-right: 1px solid #363c4e;">-140.00 €</td>
-            <td>6771.55<br><small class="text-secondary">04/11 (Chi)</small></td>
-            <td>51497.20<br><small class="text-secondary">04/11 (Chi)</small></td>
+            <td>6771.55<br><small class="text-info">03/11 (Chi)</small></td>
+            <td>51497.20<br><small class="text-info">04/11 (Chi)</small></td>
             <td>6801.75<br><small class="text-warning">04/11 09:00</small></td>
             <td>20.20<br><small class="text-warning">04/11 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">31/10/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">31/10/2025</td>
             <td><span class="badge" style="background-color:#02c076; width: 65px;">LONG</span></td>
             <td class="fw-bold" style="color:#f84960; border-right: 1px solid #363c4e;">-338.10 €</td>
-            <td>6840.20<br><small class="text-secondary">31/10 (Chi)</small></td>
-            <td>52411.34<br><small class="text-secondary">31/10 (Chi)</small></td>
+            <td>6840.20<br><small class="text-info">30/10 (Chi)</small></td>
+            <td>52411.34<br><small class="text-info">31/10 (Chi)</small></td>
             <td>6874.00<br><small class="text-warning">31/10 09:00</small></td>
             <td>16.17<br><small class="text-warning">31/10 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">30/10/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">30/10/2025</td>
             <td><span class="badge" style="background-color:#404854; width: 65px;">FLAT</span></td>
             <td class="fw-bold" style="color:white; border-right: 1px solid #363c4e;">—</td>
-            <td>6822.34<br><small class="text-secondary">30/10 (Chi)</small></td>
-            <td>51325.61<br><small class="text-secondary">30/10 (Chi)</small></td>
+            <td>6822.34<br><small class="text-info">29/10 (Chi)</small></td>
+            <td>51325.61<br><small class="text-info">30/10 (Chi)</small></td>
             <td>6855.50<br><small class="text-warning">30/10 09:00</small></td>
             <td>16.31<br><small class="text-warning">30/10 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">29/10/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">29/10/2025</td>
             <td><span class="badge" style="background-color:#02c076; width: 65px;">LONG</span></td>
             <td class="fw-bold" style="color:#02c076; border-right: 1px solid #363c4e;">+45.70 €</td>
-            <td>6890.59<br><small class="text-secondary">29/10 (Chi)</small></td>
-            <td>51307.65<br><small class="text-secondary">29/10 (Chi)</small></td>
+            <td>6890.59<br><small class="text-info">28/10 (Chi)</small></td>
+            <td>51307.65<br><small class="text-info">29/10 (Chi)</small></td>
             <td>6922.75<br><small class="text-warning">29/10 09:00</small></td>
             <td>16.36<br><small class="text-warning">29/10 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">28/10/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">28/10/2025</td>
             <td><span class="badge" style="background-color:#404854; width: 65px;">FLAT</span></td>
             <td class="fw-bold" style="color:white; border-right: 1px solid #363c4e;">—</td>
-            <td>6890.89<br><small class="text-secondary">28/10 (Chi)</small></td>
-            <td>50219.18<br><small class="text-secondary">28/10 (Chi)</small></td>
+            <td>6890.89<br><small class="text-info">27/10 (Chi)</small></td>
+            <td>50219.18<br><small class="text-info">28/10 (Chi)</small></td>
             <td>6925.75<br><small class="text-warning">28/10 09:00</small></td>
             <td>15.87<br><small class="text-warning">28/10 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">27/10/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">27/10/2025</td>
             <td><span class="badge" style="background-color:#02c076; width: 65px;">LONG</span></td>
             <td class="fw-bold" style="color:#02c076; border-right: 1px solid #363c4e;">+191.70 €</td>
-            <td>6875.16<br><small class="text-secondary">27/10 (Chi)</small></td>
-            <td>50512.32<br><small class="text-secondary">27/10 (Chi)</small></td>
+            <td>6875.16<br><small class="text-info">26/10 (Chi)</small></td>
+            <td>50512.32<br><small class="text-info">27/10 (Chi)</small></td>
             <td>6908.25<br><small class="text-warning">27/10 09:00</small></td>
             <td>15.68<br><small class="text-warning">27/10 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">24/10/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">24/10/2025</td>
             <td><span class="badge" style="background-color:#02c076; width: 65px;">LONG</span></td>
             <td class="fw-bold" style="color:#f84960; border-right: 1px solid #363c4e;">-110.20 €</td>
-            <td>6791.69<br><small class="text-secondary">24/10 (Chi)</small></td>
-            <td>49299.65<br><small class="text-secondary">24/10 (Chi)</small></td>
+            <td>6791.69<br><small class="text-info">23/10 (Chi)</small></td>
+            <td>49299.65<br><small class="text-info">24/10 (Chi)</small></td>
             <td>6827.00<br><small class="text-warning">24/10 09:00</small></td>
             <td>17.14<br><small class="text-warning">24/10 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">23/10/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">23/10/2025</td>
             <td><span class="badge" style="background-color:#f84960; width: 65px;">SHORT</span></td>
             <td class="fw-bold" style="color:#f84960; border-right: 1px solid #363c4e;">-164.30 €</td>
-            <td>6738.44<br><small class="text-secondary">23/10 (Chi)</small></td>
-            <td>48641.61<br><small class="text-secondary">23/10 (Chi)</small></td>
+            <td>6738.44<br><small class="text-info">22/10 (Chi)</small></td>
+            <td>48641.61<br><small class="text-info">23/10 (Chi)</small></td>
             <td>6775.00<br><small class="text-warning">23/10 09:00</small></td>
             <td>18.80<br><small class="text-warning">23/10 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">22/10/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">22/10/2025</td>
             <td><span class="badge" style="background-color:#404854; width: 65px;">FLAT</span></td>
             <td class="fw-bold" style="color:white; border-right: 1px solid #363c4e;">—</td>
-            <td>6699.40<br><small class="text-secondary">22/10 (Chi)</small></td>
-            <td>49307.79<br><small class="text-secondary">22/10 (Chi)</small></td>
+            <td>6699.40<br><small class="text-info">21/10 (Chi)</small></td>
+            <td>49307.79<br><small class="text-info">22/10 (Chi)</small></td>
             <td>6737.00<br><small class="text-warning">22/10 09:00</small></td>
             <td>17.87<br><small class="text-warning">22/10 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">21/10/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">21/10/2025</td>
             <td><span class="badge" style="background-color:#02c076; width: 65px;">LONG</span></td>
             <td class="fw-bold" style="color:#02c076; border-right: 1px solid #363c4e;">+0.60 €</td>
-            <td>6735.35<br><small class="text-secondary">21/10 (Chi)</small></td>
-            <td>49316.06<br><small class="text-secondary">21/10 (Chi)</small></td>
+            <td>6735.35<br><small class="text-info">20/10 (Chi)</small></td>
+            <td>49316.06<br><small class="text-info">21/10 (Chi)</small></td>
             <td>6773.25<br><small class="text-warning">21/10 09:00</small></td>
             <td>18.68<br><small class="text-warning">21/10 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">20/10/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">20/10/2025</td>
             <td><span class="badge" style="background-color:#02c076; width: 65px;">LONG</span></td>
             <td class="fw-bold" style="color:#02c076; border-right: 1px solid #363c4e;">+546.80 €</td>
-            <td>6735.13<br><small class="text-secondary">20/10 (Chi)</small></td>
-            <td>49185.50<br><small class="text-secondary">20/10 (Chi)</small></td>
+            <td>6735.13<br><small class="text-info">19/10 (Chi)</small></td>
+            <td>49185.50<br><small class="text-info">20/10 (Chi)</small></td>
             <td>6773.75<br><small class="text-warning">20/10 09:00</small></td>
             <td>20.81<br><small class="text-warning">20/10 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">17/10/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">17/10/2025</td>
             <td><span class="badge" style="background-color:#f84960; width: 65px;">SHORT</span></td>
             <td class="fw-bold" style="color:#02c076; border-right: 1px solid #363c4e;">+110.90 €</td>
-            <td>6664.01<br><small class="text-secondary">17/10 (Chi)</small></td>
-            <td>47582.15<br><small class="text-secondary">17/10 (Chi)</small></td>
+            <td>6664.01<br><small class="text-info">16/10 (Chi)</small></td>
+            <td>47582.15<br><small class="text-info">17/10 (Chi)</small></td>
             <td>6702.50<br><small class="text-warning">17/10 09:00</small></td>
             <td>27.23<br><small class="text-warning">17/10 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">16/10/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">16/10/2025</td>
             <td><span class="badge" style="background-color:#02c076; width: 65px;">LONG</span></td>
             <td class="fw-bold" style="color:#02c076; border-right: 1px solid #363c4e;">+476.70 €</td>
-            <td>6629.07<br><small class="text-secondary">16/10 (Chi)</small></td>
-            <td>48277.74<br><small class="text-secondary">16/10 (Chi)</small></td>
+            <td>6629.07<br><small class="text-info">15/10 (Chi)</small></td>
+            <td>48277.74<br><small class="text-info">16/10 (Chi)</small></td>
             <td>6668.75<br><small class="text-warning">16/10 09:00</small></td>
             <td>20.11<br><small class="text-warning">16/10 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">15/10/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">15/10/2025</td>
             <td><span class="badge" style="background-color:#02c076; width: 65px;">LONG</span></td>
             <td class="fw-bold" style="color:#02c076; border-right: 1px solid #363c4e;">+380.60 €</td>
-            <td>6671.06<br><small class="text-secondary">15/10 (Chi)</small></td>
-            <td>47672.67<br><small class="text-secondary">15/10 (Chi)</small></td>
+            <td>6671.06<br><small class="text-info">14/10 (Chi)</small></td>
+            <td>47672.67<br><small class="text-info">15/10 (Chi)</small></td>
             <td>6715.00<br><small class="text-warning">15/10 09:00</small></td>
             <td>19.58<br><small class="text-warning">15/10 09:00</small></td>
         </tr>
         
         <tr>
-            <td class="fw-bold" style="border-right: 1px solid #363c4e;">14/10/2025</td>
+            <td class="fw-bold" style="border-right: 1px solid #363c4e; color: #00d4ff;">14/10/2025</td>
             <td><span class="badge" style="background-color:#f84960; width: 65px;">SHORT</span></td>
             <td class="fw-bold" style="color:#02c076; border-right: 1px solid #363c4e;">+4.40 €</td>
-            <td>6644.31<br><small class="text-secondary">14/10 (Chi)</small></td>
-            <td>46847.32<br><small class="text-secondary">14/10 (Chi)</small></td>
+            <td>6644.31<br><small class="text-info">13/10 (Chi)</small></td>
+            <td>46847.32<br><small class="text-info">14/10 (Chi)</small></td>
             <td>6686.50<br><small class="text-warning">14/10 09:00</small></td>
             <td>21.65<br><small class="text-warning">14/10 09:00</small></td>
         </tr>
