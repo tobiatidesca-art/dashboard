@@ -11,35 +11,27 @@
         .header-main { background: #111827; border-bottom: 3px solid #3b82f6; padding: 25px; border-radius: 12px; margin-bottom: 20px; }
         .live-tile { background: #000; padding: 15px; border-radius: 10px; border: 1px solid #3b82f6; text-align: center; flex: 1; }
         .live-value { font-size: 1.5rem; font-weight: 800; display: block; }
-        input { background: #fff !important; font-weight: 900; text-align: center; border: 2px solid #3b82f6 !important; }
-        .table { font-size: 0.85rem; vertical-align: middle; }
+        .stat-card { background: #111827; border-radius: 8px; padding: 10px; border: 1px solid #374151; text-align: center; height: 100%; }
+        .stat-label { font-size: 0.65rem; color: #9ca3af; text-transform: uppercase; font-weight: bold; display: block; }
+        .stat-value { font-size: 1.1rem; font-weight: 700; }
+        input { background: #fff !important; font-weight: 900; text-align: center; border: 2px solid #3b82f6 !important; font-size: 1.2rem; }
+        .table { font-size: 0.82rem; vertical-align: middle; }
         .text-success { color: #10b981 !important; }
         .text-danger { color: #ef4444 !important; }
+        .table-responsive { max-height: 500px; overflow-y: auto; }
     </style>
 </head>
 <body class="p-4">
     <div class="header-main">
         <h2 class="fw-bold">EUROSTOXX 50 ADVANCED TERMINAL</h2>
         <h4 id="todaySignal" class="text-warning fw-bold">...</h4>
-        <div class="text-secondary small">Aggiornamento: <b>02/01/2026 13:24:23</b></div>
+        <div class="text-secondary small">Aggiornamento: <b>02/01/2026 13:28:05</b></div>
         
         <div class="d-flex justify-content-between gap-3 mt-4 flex-wrap">
-            <div class="live-tile">
-                <small class="text-info">USA (31/12 20:59)</small>
-                <span class="live-value">6845.77</span>
-            </div>
-            <div class="live-tile">
-                <small class="text-info">JPN (30/12 06:29)</small>
-                <span class="live-value">50356.87</span>
-            </div>
-            <div class="live-tile">
-                <small class="text-info">FUT (02/01 13:14)</small>
-                <span class="live-value">6930.75</span>
-            </div>
-            <div class="live-tile" style="border-color:#10b981">
-                <small style="color:#10b981">MOMENTUM LIVE</small>
-                <span class="live-value" style="color:#10b981">-0.17%</span>
-            </div>
+            <div class="live-tile"><small class="text-info">USA (31/12 20:59)</small><span class="live-value">6845.77</span></div>
+            <div class="live-tile"><small class="text-info">JPN (30/12 06:29)</small><span class="live-value">50356.87</span></div>
+            <div class="live-tile"><small class="text-info">FUT (02/01 13:18)</small><span class="live-value">6930.75</span></div>
+            <div class="live-tile" style="border-color:#10b981"><small style="color:#10b981">MOMENTUM LIVE</small><span class="live-value" style="color:#10b981">-0.17%</span></div>
         </div>
     </div>
 
@@ -48,14 +40,18 @@
             <div class="card-pro">
                 <label class="small text-info d-block text-center mb-2">SOGLIA STRATEGIA %</label>
                 <input type="number" id="threshold" class="form-control mb-4" value="0.30" step="0.05" oninput="runAnalysis()">
-                <div class="row g-2 text-center">
-                    <div class="col-6"><small class="text-secondary">PnL Netto</small><div id="resPnL" class="fw-bold fs-5">-</div></div>
-                    <div class="col-6"><small class="text-secondary">Trade Totali</small><div id="resTotal" class="fw-bold fs-5">-</div></div>
+                <div class="row g-2">
+                    <div class="col-6"><div class="stat-card"><span class="stat-label">Net Profit</span><span id="resPnL" class="stat-value">-</span></div></div>
+                    <div class="col-6"><div class="stat-card"><span class="stat-label">Total Trades</span><span id="resTotal" class="stat-value">-</span></div></div>
+                    <div class="col-6"><div class="stat-card"><span class="stat-label text-success">Win Rate</span><span id="resWin" class="stat-value text-success">-</span></div></div>
+                    <div class="col-6"><div class="stat-card"><span class="stat-label">Profit Factor</span><span id="resPF" class="stat-value">-</span></div></div>
+                    <div class="col-6"><div class="stat-card"><span class="stat-label text-danger">Max DD</span><span id="resDD" class="stat-value text-danger">-</span></div></div>
+                    <div class="col-6"><div class="stat-card"><span class="stat-label">Expectancy</span><span id="resExp" class="stat-value">-</span></div></div>
                 </div>
             </div>
         </div>
         <div class="col-xl-8">
-            <div class="card-pro"><canvas id="equityChart" style="height: 300px;"></canvas></div>
+            <div class="card-pro"><canvas id="equityChart" style="height: 335px;"></canvas></div>
         </div>
     </div>
 
@@ -63,7 +59,7 @@
         <h5 class="fw-bold text-info mb-3">Dettaglio Operazioni con Timestamp</h5>
         <div class="table-responsive">
             <table class="table table-dark table-hover">
-                <thead>
+                <thead class="sticky-top bg-dark">
                     <tr class="text-secondary">
                         <th>DATA</th><th>AZIONE</th><th>PNL</th><th>MOM %</th><th>USA</th><th>JPN</th><th>FUT</th>
                     </tr>
@@ -81,7 +77,8 @@
 
         function runAnalysis() {
             const thr = parseFloat(document.getElementById('threshold').value) / 100;
-            let cap = 20000; let pnl = 0; let total = 0;
+            let cap = 20000; let pnl = 0; let total = 0; let wins = 0;
+            let gWin = 0; let gLoss = 0; let maxCap = 20000; let maxDD = 0;
             let equity = []; let labels = []; let html = "";
 
             let sToday = "FLAT ⚪";
@@ -95,10 +92,16 @@
                 else if (item.mom < -thr && item.vix < 32) s = -1;
 
                 let res = s * item.p_raw;
-                if (s !== 0) { total++; pnl += res; }
+                if (s !== 0) { 
+                    total++; pnl += res; 
+                    if (res > 0) { wins++; gWin += res; } else { gLoss += Math.abs(res); }
+                }
                 cap += res;
                 equity.push(cap);
                 labels.push(item.date);
+                if (cap > maxCap) maxCap = cap;
+                let dd = ((maxCap - cap) / maxCap) * 100;
+                if (dd > maxDD) maxDD = dd;
 
                 html = `<tr>
                     <td><b>${item.date}</b></td>
@@ -113,12 +116,16 @@
 
             document.getElementById('resPnL').innerText = pnl.toFixed(0) + " €";
             document.getElementById('resTotal').innerText = total;
+            document.getElementById('resWin').innerText = total > 0 ? ((wins/total)*100).toFixed(1) + "%" : "0%";
+            document.getElementById('resPF').innerText = gLoss > 0 ? (gWin/gLoss).toFixed(2) : "N/A";
+            document.getElementById('resDD').innerText = "-" + maxDD.toFixed(1) + "%";
+            document.getElementById('resExp').innerText = total > 0 ? (pnl/total).toFixed(1) + " €" : "0 €";
             document.getElementById('tableBody').innerHTML = html;
 
             if (myChart) myChart.destroy();
             myChart = new Chart(document.getElementById('equityChart'), {
                 type: 'line',
-                data: { labels: labels, datasets: [{ label: 'Equity', data: equity, borderColor: '#3b82f6', pointRadius: 0, fill: true, backgroundColor: 'rgba(59, 130, 246, 0.05)' }] },
+                data: { labels: labels, datasets: [{ label: 'Equity', data: equity, borderColor: '#3b82f6', borderWidth: 2, pointRadius: 0, fill: true, backgroundColor: 'rgba(59, 130, 246, 0.05)' }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
         }
