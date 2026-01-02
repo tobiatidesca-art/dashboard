@@ -1,0 +1,18 @@
+name: Aggiornamento Automatico
+on:
+  schedule:
+    - cron: '45 7 * * *' # 08:45 ora italiana (solare)
+  workflow_dispatch:      # Permette di farlo partire a mano per test
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - run: pip install -r requirements.txt
+      - name: Esegui script
+        env:
+          MY_GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+        run: python script.py
