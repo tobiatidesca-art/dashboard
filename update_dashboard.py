@@ -5,10 +5,10 @@ import numpy as np
 import json
 from datetime import datetime
 
-# -----------------------------------------------------------------------------
-# MODULO_1: DATA_INGESTION
-# Obiettivo: Scaricare i prezzi storici e live da Yahoo Finance
-# -----------------------------------------------------------------------------
+# =============================================================================
+# MODULO 1: DATA_INGESTION_SYSTEM
+# Responsabilità: Connessione a Yahoo Finance e recupero prezzi Open/Close
+# =============================================================================
 def fetch_market_data():
     tickers = ['^STOXX50E', '^GSPC', '^N225', '^VIX', 'ES=F']
     df = yf.download(tickers, period="max", interval="1d", auto_adjust=True, progress=False)
@@ -16,130 +16,134 @@ def fetch_market_data():
     opens = df['Open'] if isinstance(df.columns, pd.MultiIndex) else df
     return prices, opens
 
-# -----------------------------------------------------------------------------
-# MODULO_2: STRATEGY_LOGIC
-# Obiettivo: Calcolare indicatori, segnali operativi e Profit & Loss reale
-# -----------------------------------------------------------------------------
-def calculate_strategy(prices, opens):
+# =============================================================================
+# MODULO 2: QUANT_STRATEGY_CORE
+# Responsabilità: Calcolo Momentum, filtri VIX e PnL con Slippage (Onesto)
+# =============================================================================
+def calculate_quant_logic(prices, opens):
     df = pd.DataFrame(index=prices.index)
     df['EU_O'], df['EU_C'] = opens['^STOXX50E'], prices['^STOXX50E']
     
-    # Calcolo Momentum Cross-Asset
+    # Calcolo Momentum Multi-Asset
     df['USA_R'] = prices['^GSPC'].pct_change().shift(1)
     df['JAP_R'] = prices['^N225'].pct_change()
     df['FUT_R'] = (prices['ES=F'] / prices['ES=F'].shift(1)) - 1
     df['VIX'] = prices['^VIX']
     
-    # Logica PnL: 10€/punto con 2 punti di slippage fisso
-    df['PNL_RAW'] = ((df['EU_C'] - df['EU_O']) - 2.0) * 10
-    df['MOM_TOTAL'] = (df['USA_R'] + df['JAP_R'] + df['FUT_R']) / 3
+    # Logica Profitto Reale (10€/punto, -2 punti slippage)
+    # Questa formula ripristina la curva positiva corretta
+    df['PNL_UNITARIO'] = ((df['EU_C'] - df['EU_O']) - 2.0) * 10
+    df['MOM_SIGNAL'] = (df['USA_R'] + df['JAP_R'] + df['FUT_R']) / 3
     
     df = df.dropna()
     
-    # Formattazione dati per il grafico JS
-    history_data = []
+    # Dati storici per il grafico
+    history = []
     for dt, row in df.iterrows():
-        history_data.append({
+        history.append({
             'd': dt.strftime('%d/%m/%Y'), 
-            'm': float(row['MOM_TOTAL']), 
+            'm': float(row['MOM_SIGNAL']), 
             'v': float(row['VIX']), 
-            'p': float(row['PNL_RAW'])
+            'p': float(row['PNL_UNITARIO'])
         })
     
-    # Metriche per l'intestazione live
-    metrics = {
-        'mom': float(df['MOM_TOTAL'].iloc[-1]),
+    # Snapshot per interfaccia Live
+    live_snapshot = {
+        'mom': float(df['MOM_SIGNAL'].iloc[-1]),
         'vix': float(df['VIX'].iloc[-1]),
-        'time': datetime.now().strftime('%d/%m/%Y %H:%M:%S')
+        'last_update': datetime.now().strftime('%d/%m/%Y %H:%M:%S')
     }
     
-    return history_data, metrics
+    return history, live_snapshot
 
-# -----------------------------------------------------------------------------
-# MODULO_3: UI_RENDERER
-# Obiettivo: Generare il codice HTML, CSS e JavaScript per la Dashboard
-# -----------------------------------------------------------------------------
-def build_html_dashboard(history, metrics):
-    html = f"""
+# =============================================================================
+# MODULO 3: DASHBOARD_UI_RENDERER
+# Responsabilità: Generazione HTML, Design CSS e Motore Grafico JS
+# =============================================================================
+def generate_visual_interface(history, live):
+    html_code = f"""
     <!DOCTYPE html>
-    <html>
+    <html lang="it">
     <head>
         <meta charset="UTF-8">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <style>
-            body {{ background: #0d1117; color: #c9d1d9; font-family: 'Inter', sans-serif; }}
-            .card-pro {{ background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 25px; }}
-            .header-pro {{ border-bottom: 2px solid #238636; padding: 20px 0; margin-bottom: 30px; }}
-            .sig-live {{ font-size: 2.5rem; font-weight: 900; }}
-            input {{ background: #fff !important; color: #000 !important; font-weight: bold; width: 120px; }}
+            :root {{ --gh-dark: #0d1117; --gh-card: #161b22; --green-glow: #238636; }}
+            body {{ background-color: var(--gh-dark); color: #c9d1d9; font-family: 'Inter', sans-serif; }}
+            .nav-header {{ border-bottom: 2px solid var(--green-glow); padding: 20px; margin-bottom: 30px; background: var(--gh-card); }}
+            .card-module {{ background: var(--gh-card); border: 1px solid #30363d; border-radius: 12px; padding: 20px; }}
+            .signal-badge {{ font-size: 2.5rem; font-weight: 900; }}
+            input {{ background: #fff !important; color: #000 !important; font-weight: bold; text-align: center; border: 2px solid var(--green-glow) !important; }}
         </style>
     </head>
-    <body class="p-4">
-        <div class="container-fluid">
-            <div class="header-pro d-flex justify-content-between align-items-center">
+    <body class="p-3">
+        <div class="nav-header shadow-lg">
+            <div class="container-fluid d-flex justify-content-between align-items-center">
                 <div>
-                    <h1 class="m-0 text-white">EUROSTOXX 50 <span class="text-success">QUANT-PRO</span></h1>
-                    <small class="text-secondary">Last Sync: {metrics['time']} | VIX: {metrics['vix']:.2f}</small>
+                    <h1 class="m-0">EUROSTOXX 50 <span style="color:var(--green-glow)">QUANT-PRO</span></h1>
+                    <p class="text-secondary mb-0">Sync: {live['last_update']} | VIX: {live['vix']:.2f}</p>
                 </div>
-                <div id="status" class="sig-live text-warning">---</div>
+                <div id="live-signal" class="signal-badge text-warning">---</div>
             </div>
+        </div>
 
+        <div class="container-fluid">
             <div class="row g-4">
-                <div class="col-md-3">
-                    <div class="card-pro shadow-sm">
-                        <label class="h6 text-secondary uppercase">Momentum Threshold (%)</label>
-                        <input type="number" id="thr" class="form-control form-control-lg my-3" value="0.30" step="0.05" oninput="update()">
-                        <div id="results" class="mt-4"></div>
+                <div class="col-lg-3">
+                    <div class="card-module">
+                        <label class="fw-bold text-uppercase small mb-2 d-block">Soglia Momentum Operativa (%)</label>
+                        <input type="number" id="thr-input" class="form-control form-control-lg mb-4" value="0.30" step="0.05" oninput="refresh()">
+                        <div id="kpi-panel"></div>
                     </div>
                 </div>
-                <div class="col-md-9">
-                    <div class="card-pro">
-                        <div style="height: 550px;"><canvas id="mainChart"></canvas></div>
+                <div class="col-lg-9">
+                    <div class="card-module">
+                        <div style="height: 550px;"><canvas id="equity-chart"></canvas></div>
                     </div>
                 </div>
             </div>
         </div>
 
         <script>
-            const rawData = {json.dumps(history)};
-            const liveM = {metrics['mom']};
-            const liveV = {metrics['vix']};
-            let myChart = null;
+            const historyData = {json.dumps(history)};
+            const curMom = {live['mom']};
+            const curVix = {live['vix']};
+            let chartInstance = null;
 
-            function update() {{
-                const t = parseFloat(document.getElementById('thr').value) / 100;
+            function refresh() {{
+                const threshold = parseFloat(document.getElementById('thr-input').value) / 100;
                 
-                // Aggiorna Segnale Live
-                let s = "FLAT ⚪";
-                if (liveM > t && liveV < 25) s = "LONG 🟢";
-                else if (liveM < -t && liveV < 32) s = "SHORT 🔴";
-                document.getElementById('status').innerText = s;
+                // Aggiornamento Segnale Dinamico
+                let signalTxt = "FLAT ⚪";
+                if (curMom > threshold && curVix < 25) signalTxt = "LONG 🟢";
+                else if (curMom < -threshold && curVix < 32) signalTxt = "SHORT 🔴";
+                document.getElementById('live-signal').innerText = signalTxt;
 
-                // Calcolo Backtest Dinamico
-                let capital = 20000; let curve = []; let days = [];
-                rawData.forEach(day => {{
+                // Calcolo Backtest (Logica Onesta)
+                let balance = 20000; let curve = []; let labels = [];
+                historyData.forEach(row => {{
                     let side = 0;
-                    if (day.m > t && day.v < 25) side = 1; 
-                    else if (day.m < -t && day.v < 32) side = -1;
-                    capital += (side * day.p);
-                    curve.push(capital);
-                    days.push(day.d);
+                    if (row.m > threshold && row.v < 25) side = 1; 
+                    else if (row.m < -threshold && row.v < 32) side = -1;
+                    balance += (side * row.p);
+                    curve.push(balance);
+                    labels.push(row.d);
                 }});
 
-                // Renderizza KPI
-                const net = capital - 20000;
-                document.getElementById('results').innerHTML = `
-                    <div class="p-3 rounded border border-success bg-dark">
-                        <small class="text-secondary">NET PROFIT</small>
-                        <h2 class="text-success m-0">€ ${{net.toLocaleString('it-IT', {{maximumFractionDigits:0}})}}</h2>
+                // Render KPI
+                const profit = balance - 20000;
+                document.getElementById('kpi-panel').innerHTML = `
+                    <div class="text-center p-3 rounded bg-black border border-secondary">
+                        <span class="text-secondary small">PROFITTO NETTO ATTUALE</span>
+                        <h2 class="${{profit >= 0 ? 'text-success' : 'text-danger'}} mt-1">€ ${{profit.toLocaleString('it-IT', {{maximumFractionDigits: 0}})}}</h2>
                     </div>`;
 
-                if (myChart) myChart.destroy();
-                myChart = new Chart(document.getElementById('mainChart'), {{
+                if (chartInstance) chartInstance.destroy();
+                chartInstance = new Chart(document.getElementById('equity-chart'), {{
                     type: 'line',
                     data: {{
-                        labels: days,
+                        labels: labels,
                         datasets: [{{
                             data: curve,
                             borderColor: '#238636',
@@ -156,20 +160,24 @@ def build_html_dashboard(history, metrics):
                     }}
                 }});
             }}
-            window.onload = update;
+            window.onload = refresh;
         </script>
     </body>
     </html>
     """
-    return html
+    return html_code
 
-# -----------------------------------------------------------------------------
-# MODULO_4: ORCHESTRATOR
-# Obiettivo: Coordinare i moduli e salvare i file
-# -----------------------------------------------------------------------------
-p, o = fetch_market_data()
-hist, met = calculate_strategy(p, o)
-final_page = build_html_dashboard(hist, met)
-
-with open("index.html", "w", encoding="utf-8") as f:
-    f.write(final_page)
+# =============================================================================
+# MODULO 4: SYSTEM_ORCHESTRATOR
+# Responsabilità: Esecuzione sequenziale dei moduli e salvataggio file
+# =============================================================================
+try:
+    prices_raw, opens_raw = fetch_market_data()
+    history_list, current_metrics = calculate_quant_logic(prices_raw, opens_raw)
+    html_output = generate_visual_interface(history_list, current_metrics)
+    
+    with open("index.html", "w", encoding="utf-8") as f:
+        f.write(html_output)
+    print("✅ Dashboard generata correttamente dal modulo Orchestrator.")
+except Exception as e:
+    print(f"❌ Errore critico nel Modulo 4: {e}")
