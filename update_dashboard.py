@@ -26,6 +26,7 @@ def calculate_quant_logic(prices, opens):
     df['FUT_R'] = (prices['ES=F'] / prices['ES=F'].shift(1)) - 1
     df['VIX'] = prices['^VIX']
     
+    # Calcolo PnL Strategia
     df['PNL_UNITARIO'] = ((df['EU_C'] - df['EU_O']) - 2.0) * 10
     df['MOM_SIGNAL'] = (df['USA_R'] + df['JAP_R'] + df['FUT_R']) / 3
     
@@ -33,10 +34,11 @@ def calculate_quant_logic(prices, opens):
     history = []
     for dt, row in df.iterrows():
         history.append({
-            'd': dt.strftime('%d/%m/%Y'), 
+            'd': dt.strftime('%Y-%m-%d'), # Formato ISO per JS
             'm': float(row['MOM_SIGNAL']), 
             'v': float(row['VIX']), 
-            'p': float(row['PNL_UNITARIO'])
+            'p': float(row['PNL_UNITARIO']),
+            'idx': float(row['EU_C']) # Prezzo Indice per Modulo 4
         })
     
     live_snapshot = {
@@ -47,44 +49,47 @@ def calculate_quant_logic(prices, opens):
     return history, live_snapshot
 
 # =============================================================================
-# MODULO 6: MULTILANGUAGE_MANAGER (Nuovo!)
-# Gestisce le traduzioni per: EN, DE, FR, ES, ZH
+# MODULO 6: MULTILANGUAGE_MANAGER
 # =============================================================================
 def get_language_pack():
     return {
         "en": {
             "title": "QUANT-PRO V4", "sync": "Modulo 1: Data Sync", "core": "MODULO 2: CORE_LOGIC",
             "controls": "MODULO 3: UI_CONTROLS", "chart": "MODULO 4: CHART_ENGINE",
-            "threshold": "MOMENTUM THRESHOLD (%)", "profit": "NET PROFIT", "equity": "Equity Curve (€)"
+            "threshold": "MOMENTUM THRESHOLD (%)", "profit": "NET PROFIT", 
+            "equity": "Equity Curve (€)", "benchmark": "EuroStoxx 50 Index"
         },
         "de": {
-            "title": "QUANT-PRO V4", "sync": "Modul 1: Datensynchronizzazione", "core": "MODUL 2: KERNLOGIK",
-            "controls": "MODUL 3: STEUERUNG", "chart": "MODUL 4: DIAGRAMM",
-            "threshold": "MOMENTUM-SCHWELLE (%)", "profit": "NETTOGEWINN", "equity": "Equity-Kurve (€)"
+            "title": "QUANT-PRO V4", "sync": "Modul 1: Daten", "core": "MODUL 2: KERNLOGIK",
+            "controls": "MODUL 3: STEUERUNG", "chart": "MODUL 4: CHART",
+            "threshold": "SCHWELLE (%)", "profit": "GEWINN", 
+            "equity": "Equity (€)", "benchmark": "EuroStoxx 50 Index"
         },
         "fr": {
-            "title": "QUANT-PRO V4", "sync": "Module 1: Sync Données", "core": "MODULE 2: LOGIQUE CORE",
-            "controls": "MODULE 3: CONTRÔLES UI", "chart": "MODULE 4: MOTEUR GRAPHIQUE",
-            "threshold": "SEUIL DE MOMENTUM (%)", "profit": "PROFIT NET", "equity": "Courbe d'équité (€)"
+            "title": "QUANT-PRO V4", "sync": "Module 1: Données", "core": "MODULE 2: LOGIQUE",
+            "controls": "MODULE 3: CONTRÔLES", "chart": "MODULE 4: GRAPHIQUE",
+            "threshold": "SEUIL (%)", "profit": "PROFIT", 
+            "equity": "Équité (€)", "benchmark": "EuroStoxx 50 Index"
         },
         "es": {
-            "title": "QUANT-PRO V4", "sync": "Módulo 1: Sinc. Datos", "core": "MÓDULO 2: LÓGICA CORE",
-            "controls": "MÓDULO 3: CONTROLES UI", "chart": "MÓDULO 4: MOTOR GRÁFICO",
-            "threshold": "UMBRAL DE MOMENTUM (%)", "profit": "BENEFICIO NETO", "equity": "Curva de Equidad (€)"
+            "title": "QUANT-PRO V4", "sync": "Módulo 1: Datos", "core": "MÓDULO 2: LÓGICA",
+            "controls": "MÓDULO 3: CONTROLES", "chart": "MÓDULO 4: GRÁFICO",
+            "threshold": "UMBRAL (%)", "profit": "BENEFICIO", 
+            "equity": "Equidad (€)", "benchmark": "EuroStoxx 50 Index"
         },
         "zh": {
-            "title": "QUANT-PRO V4", "sync": "模块 1: 数据同步", "core": "模块 2: 核心逻辑",
-            "controls": "模块 3: 界面控制", "chart": "模块 4: 图表引擎",
-            "threshold": "动量阈值 (%)", "profit": "净利润", "equity": "权益曲线 (€)"
+            "title": "QUANT-PRO V4", "sync": "模块 1: 数据", "core": "模块 2: 逻辑",
+            "controls": "模块 3: 控制", "chart": "模块 4: 图表",
+            "threshold": "阈值 (%)", "profit": "净利润", 
+            "equity": "权益 (€)", "benchmark": "欧洲斯托克50"
         }
     }
 
 # =============================================================================
-# MODULO 3 & 4: UI_RENDERER
+# MODULO 3 & 4: UI & CHART ENGINE
 # =============================================================================
 def generate_visual_interface(history, live):
     lang_pack = get_language_pack()
-    
     html_code = f"""
     <!DOCTYPE html>
     <html lang="en">
@@ -156,26 +161,25 @@ def generate_visual_interface(history, live):
                 const t = parseFloat(document.getElementById('thr').value) / 100;
                 const tP = langPack[lang];
 
-                // Aggiornamento Lingua Interfaccia
                 document.getElementById('ui-title').innerText = tP.title;
                 document.getElementById('ui-core').innerText = tP.core;
                 document.getElementById('ui-threshold-label').innerText = tP.threshold;
                 document.getElementById('tag-controls').innerText = tP.controls;
                 document.getElementById('tag-chart').innerText = tP.chart;
 
-                // Segnale
                 let sig = "FLAT ⚪";
                 if (lM > t && lV < 25) sig = "LONG 🟢";
                 else if (lM < -t && lV < 32) sig = "SHORT 🔴";
                 document.getElementById('signal-display').innerText = sig;
 
-                // Calcolo PnL
-                let cap = 20000; let curve = []; let days = [];
+                let cap = 20000; let curve = []; let days = []; let benchmark = [];
                 raw.forEach(r => {{
                     let s = 0;
                     if (r.m > t && r.v < 25) s = 1; else if (r.m < -t && r.v < 32) s = -1;
                     cap += (s * r.p);
-                    curve.push(cap); days.push(r.d);
+                    curve.push(cap);
+                    days.push(r.d);
+                    benchmark.push(r.idx);
                 }});
 
                 document.getElementById('kpi-box').innerHTML = `
@@ -184,26 +188,53 @@ def generate_visual_interface(history, live):
                         <h2 class="${{cap >= 20000 ? 'text-success' : 'text-danger'}} mt-1">€ ${{ (cap-20000).toLocaleString('it-IT', {{maximumFractionDigits: 0}}) }}</h2>
                     </div>`;
 
-                // Chart
                 if (chart) chart.destroy();
                 chart = new Chart(document.getElementById('main-chart'), {{
                     type: 'line',
                     data: {{
                         labels: days,
-                        datasets: [{{
-                            label: tP.equity,
-                            data: curve,
-                            borderColor: '#238636',
-                            borderWidth: 2,
-                            pointRadius: 0,
-                            fill: true,
-                            backgroundColor: 'rgba(35, 134, 54, 0.05)'
-                        }}]
+                        datasets: [
+                            {{
+                                label: tP.equity,
+                                data: curve,
+                                borderColor: '#238636',
+                                backgroundColor: 'rgba(35, 134, 54, 0.1)',
+                                borderWidth: 2,
+                                pointRadius: 0,
+                                fill: true,
+                                yAxisID: 'y'
+                            }},
+                            {{
+                                label: tP.benchmark,
+                                data: benchmark,
+                                borderColor: '#58a6ff',
+                                borderWidth: 1,
+                                pointRadius: 0,
+                                fill: false,
+                                yAxisID: 'y1'
+                            }}
+                        ]
                     }},
                     options: {{
                         responsive: true, maintainAspectRatio: false,
-                        plugins: {{ legend: {{ display: false }} }},
-                        scales: {{ x: {{ display: false }}, y: {{ grid: {{ color: '#21262d' }} }} }}
+                        interaction: {{ mode: 'index', intersect: false }},
+                        scales: {{
+                            x: {{ 
+                                grid: {{ display: false }},
+                                ticks: {{ color: '#8b949e', maxRotation: 0, autoSkip: true, maxTicksLimit: 10 }}
+                            }},
+                            y: {{ 
+                                type: 'linear', display: true, position: 'left',
+                                title: {{ display: true, text: 'Equity (€)', color: '#238636' }},
+                                grid: {{ color: '#21262d' }}
+                            }},
+                            y1: {{ 
+                                type: 'linear', display: true, position: 'right',
+                                title: {{ display: true, text: 'Index (Points)', color: '#58a6ff' }},
+                                grid: {{ drawOnChartArea: false }}
+                            }}
+                        }},
+                        plugins: {{ legend: {{ labels: {{ color: '#c9d1d9' }} }} }}
                     }}
                 }});
             }}
@@ -217,11 +248,7 @@ def generate_visual_interface(history, live):
 # =============================================================================
 # MODULO 5: SYSTEM_ORCHESTRATOR
 # =============================================================================
-try:
-    p, o = fetch_market_data()
-    hist, metrics = calculate_quant_logic(p, o)
-    page = generate_visual_interface(hist, metrics)
-    with open("index.html", "w", encoding="utf-8") as f: f.write(page)
-    print("✅ Modulo 5: Orchestrazione completata.")
-except Exception as e:
-    print(f"❌ Errore Modulo 5: {e}")
+p, o = fetch_market_data()
+hist, metrics = calculate_quant_logic(p, o)
+page = generate_visual_interface(hist, metrics)
+with open("index.html", "w", encoding="utf-8") as f: f.write(page)
