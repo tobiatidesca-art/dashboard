@@ -13,13 +13,13 @@ def fetch_market_data():
     opens = df['Open'] if isinstance(df.columns, pd.MultiIndex) else df
     return prices, opens
 
-# --- MODULO 2: STRATEGY_CORE (UPDATED) ---
+# --- MODULO 2: STRATEGY_CORE (UPDATED WITH TIMESTAMP) ---
 def calculate_quant_logic(prices, opens):
     df = pd.DataFrame(index=prices.index)
     df['EU_O'], df['EU_C'] = opens['^STOXX50E'], prices['^STOXX50E']
     df['DAX_O'], df['DAX_C'] = opens['^GDAXI'], prices['^GDAXI']
     
-    # Dettagli Indici Globali
+    # Dati Indici Globali
     df['SP_C'] = prices['^GSPC']
     df['JPN_C'] = prices['^N225']
     df['USA_R'] = df['SP_C'].pct_change().shift(1)
@@ -27,8 +27,10 @@ def calculate_quant_logic(prices, opens):
     df['FUT_R'] = (prices['ES=F'] / prices['ES=F'].shift(1)) - 1
     df['VIX'] = prices['^VIX']
     
+    # PnL (10€/punto, -2.0 slippage)
     df['PNL_EU'] = ((df['EU_C'] - df['EU_O']) - 2.0) * 10
     df['PNL_DAX'] = ((df['DAX_C'] - df['DAX_O']) - 2.0) * 10
+    
     df['MOM_SIGNAL'] = (df['USA_R'] + df['JAP_R'] + df['FUT_R']) / 3
     df = df.dropna()
     
@@ -44,7 +46,8 @@ def calculate_quant_logic(prices, opens):
             'idx_dax': float(row['DAX_C'])
         })
     
-    # Snapshot dettagliato per l'interfaccia
+    # Snapshot con Data e Ora di Rilevazione
+    now = datetime.now()
     live_snapshot = {
         'mom': float(df['MOM_SIGNAL'].iloc[-1]),
         'vix': float(df['VIX'].iloc[-1]),
@@ -52,8 +55,9 @@ def calculate_quant_logic(prices, opens):
         'jpn_price': float(df['JPN_C'].iloc[-1]),
         'entry_price_eu': float(df['EU_O'].iloc[-1]),
         'entry_price_dax': float(df['DAX_O'].iloc[-1]),
-        'entry_time': "09:00:00", # Orario apertura mercati EU
-        'last_update': datetime.now().strftime('%H:%M:%S %d/%m/%Y')
+        'last_sync_date': now.strftime('%d/%m/%Y'),
+        'last_sync_time': now.strftime('%H:%M:%S'),
+        'last_update': now.strftime('%H:%M:%S %d/%m/%Y')
     }
     return history, live_snapshot
 
@@ -61,24 +65,24 @@ def calculate_quant_logic(prices, opens):
 def get_language_pack():
     return {
         "en": {
-            "title": "QUANT-PRO V5.4", "sync": "MODULO 1: DATA_SYNC", "core": "MODULO 2: CORE_LOGIC",
+            "title": "QUANT-PRO V5.5", "sync": "MODULO 1: DATA_SYNC", "core": "MODULO 2: CORE_LOGIC",
             "controls": "MODULO 3: UI_CONTROLS", "chart": "MODULO 4: CHART_ENGINE", "system": "MODULO 5: ORCHESTRATOR",
             "threshold": "MOMENTUM THRESHOLD (%)", "profit": "NET PROFIT", 
             "equity": "Equity Curve (€)", "benchmark": "Index Reference", 
             "select_asset": "CHOOSE TRADING ASSET", "select_lang": "CHOOSE LANGUAGE",
-            "market_info": "GLOBAL MARKET STATUS", "entry": "ENTRY"
+            "market_info": "GLOBAL MARKET STATUS", "entry": "ENTRY PRICE", "last_check": "DATA AS OF"
         },
         "de": {
-            "title": "QUANT-PRO V5.4", "sync": "MODUL 1: DATEN_SYNC", "core": "MODUL 2: KERN_LOGIK",
+            "title": "QUANT-PRO V5.5", "sync": "MODUL 1: DATEN_SYNC", "core": "MODUL 2: KERN_LOGIK",
             "controls": "MODUL 3: STEUERUNG", "chart": "MODUL 4: GRAFIK_ENGINE", "system": "MODUL 5: SYSTEM",
             "threshold": "SCHWELLE (%)", "profit": "NETTOGEWINN", 
             "equity": "Equity (€)", "benchmark": "Index-Referenz",
             "select_asset": "HANDELSOBJEKT WÄHLEN", "select_lang": "SPRACHE WÄHLEN",
-            "market_info": "WELTMARKT STATUS", "entry": "EINTRITT"
+            "market_info": "WELTMARKT STATUS", "entry": "EINTRITTSPREIS", "last_check": "DATEN VOM"
         },
-        "fr": { "title": "QUANT-PRO V5.4", "sync": "MODULE 1: SYNC", "core": "MODULE 2: LOGIQUE", "controls": "MODULE 3: CONTROLES", "chart": "MODULE 4: GRAPHIQUE", "system": "MODULE 5: SYSTEME", "threshold": "SEUIL (%)", "profit": "PROFIT NET", "equity": "Equité (€)", "benchmark": "Indice", "select_asset": "ACTIF", "select_lang": "LANGUE", "market_info": "ÉTAT DU MARCHÉ", "entry": "ENTRÉE" },
-        "es": { "title": "QUANT-PRO V5.4", "sync": "MÓDULO 1: SYNC", "core": "MÓDULO 2: LÓGICA", "controls": "MÓDULO 3: CONTROLES", "chart": "MÓDULO 4: GRÁFICO", "system": "MÓDULO 5: SISTEMA", "threshold": "UMBRAL (%)", "profit": "BENEFICIO NETO", "equity": "Equidad (€)", "benchmark": "Índice", "select_asset": "ACTIVO", "select_lang": "IDIOMA", "market_info": "ESTADO DEL MERCADO", "entry": "ENTRADA" },
-        "zh": { "title": "QUANT-PRO V5.4", "sync": "模块 1: 同步", "core": "模块 2: 逻辑", "controls": "模块 3: 控制", "chart": "模块 4: 图表", "system": "模块 5: 系统", "threshold": "阈值 (%)", "profit": "净利润", "equity": "权益 (€)", "benchmark": "指数", "select_asset": "资产", "select_lang": "语言", "market_info": "全球市场状态", "entry": "入场" }
+        "fr": { "title": "QUANT-PRO V5.5", "sync": "MODULE 1: SYNC", "core": "MODULE 2: LOGIQUE", "controls": "MODULE 3: CONTRÔLES", "chart": "MODULE 4: GRAPHIQUE", "system": "MODULE 5: SYSTÈME", "threshold": "SEUIL (%)", "profit": "PROFIT NET", "equity": "Équité (€)", "benchmark": "Indice", "select_asset": "ACTIF", "select_lang": "LANGUE", "market_info": "ÉTAT DU MARCHÉ", "entry": "PRIX D'ENTRÉE", "last_check": "DONNÉES AU" },
+        "es": { "title": "QUANT-PRO V5.5", "sync": "MÓDULO 1: SYNC", "core": "MÓDULO 2: LÓGICA", "controls": "MÓDULO 3: CONTROLES", "chart": "MÓDULO 4: GRÁFICO", "system": "MÓDULO 5: SISTEMA", "threshold": "UMBRAL (%)", "profit": "BENEFICIO NETO", "equity": "Equidad (€)", "benchmark": "Índice", "select_asset": "ACTIVO", "select_lang": "IDIOMA", "market_info": "ESTADO DEL MERCADO", "entry": "PRECIO ENTRADA", "last_check": "DATOS DE" },
+        "zh": { "title": "QUANT-PRO V5.5", "sync": "模块 1: 同步", "core": "模块 2: 逻辑核心", "controls": "模块 3: 控制", "chart": "模块 4: 图表引擎", "system": "模块 5: 系统调度", "threshold": "阈值 (%)", "profit": "净利润", "equity": "权益 (€)", "benchmark": "参考指数", "select_asset": "选择资产", "select_lang": "选择语言", "market_info": "全球市场状态", "entry": "入场价格", "last_check": "数据时间" }
     }
 
 # --- MODULO 3 & 4: UI & CHART ---
@@ -124,14 +128,18 @@ def generate_visual_interface(history, live):
                         <span class="mod-label" id="ui-market-info">{lang_pack['en']['market_info']}</span>
                         <div class="market-detail mt-1"><span>S&P 500 (USA)</span><span class="text-white fw-bold">{live['sp_price']:,.2f}</span></div>
                         <div class="market-detail"><span>NIKKEI 225 (JPN)</span><span class="text-white fw-bold">{live['jpn_price']:,.2f}</span></div>
+                        <div class="market-detail mt-1" style="border:none; color:var(--blue); font-size:0.75rem;">
+                            <span id="ui-last-check">{lang_pack['en']['last_check']}</span>
+                            <span class="fw-bold">{live['last_sync_date']} {live['last_sync_time']}</span>
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="top-control-box" style="border-top-color: var(--accent)">
                         <span class="mod-label" id="ui-asset-label">{lang_pack['en']['select_asset']}</span>
                         <select class="custom-select mt-1" id="asset-select" onchange="run()">
-                            <option value="eu">EURO STOXX 50 🇪🇺</option>
-                            <option value="dax">DAX 40 🇩🇪</option>
+                            <option value="eu">EURO STOXX 50 Index 🇪🇺</option>
+                            <option value="dax">DAX 40 Performance Index 🇩🇪</option>
                         </select>
                         <div class="market-detail mt-1"><span id="ui-entry-label">{lang_pack['en']['entry']}</span><span class="text-success fw-bold" id="entry-data">---</span></div>
                     </div>
@@ -143,7 +151,7 @@ def generate_visual_interface(history, live):
                             <option value="en">English 🇺🇸</option><option value="de">Deutsch 🇩🇪</option>
                             <option value="fr">Français 🇫🇷</option><option value="es">Español 🇪🇸</option><option value="zh">中文 🇨🇳</option>
                         </select>
-                        <div class="market-detail mt-1"><span>VIX Index</span><span class="text-warning fw-bold">{live['vix']:.2f}</span></div>
+                        <div class="market-detail mt-1"><span>VIX Volatility Index</span><span class="text-warning fw-bold">{live['vix']:.2f}</span></div>
                     </div>
                 </div>
             </div>
@@ -164,7 +172,9 @@ def generate_visual_interface(history, live):
                     </div>
                 </div>
             </div>
-            <div class="text-center mt-3"><small class="text-muted" id="ui-mod5">{lang_pack['en']['system']} | {live['last_update']}</small></div>
+            <div class="text-center mt-3">
+                <small class="text-muted" id="ui-mod5">{lang_pack['en']['system']} | ACTIVE SERVER SYNC</small>
+            </div>
         </div>
 
         <script>
@@ -179,7 +189,7 @@ def generate_visual_interface(history, live):
                 const t = parseFloat(document.getElementById('thr').value) / 100;
                 const tP = langPack[lang];
 
-                // Labels
+                // Labels Sync
                 document.getElementById('ui-mod1').innerText = tP.sync;
                 document.getElementById('ui-mod2').innerText = tP.core;
                 document.getElementById('ui-mod3-tag').innerText = tP.controls;
@@ -189,10 +199,10 @@ def generate_visual_interface(history, live):
                 document.getElementById('ui-lang-label').innerText = tP.select_lang;
                 document.getElementById('ui-market-info').innerText = tP.market_info;
                 document.getElementById('ui-entry-label').innerText = tP.entry;
+                document.getElementById('ui-last-check').innerText = tP.last_check;
 
-                // Entry Info Dinamica
                 const ep = (asset === 'eu') ? lD.entry_price_eu : lD.entry_price_dax;
-                document.getElementById('entry-data').innerText = ep.toLocaleString() + " @ " + lD.entry_time;
+                document.getElementById('entry-data').innerText = ep.toLocaleString() + " @ 09:00";
 
                 let cap = 20000; let curve = []; let days = []; let benchmark = [];
                 raw.forEach(r => {{
@@ -220,14 +230,7 @@ def generate_visual_interface(history, live):
                             {{ label: asset.toUpperCase() + " Index", data: benchmark, borderColor: '#58a6ff', borderWidth: 1, pointRadius: 0, fill: false, yAxisID: 'y1' }}
                         ]
                     }},
-                    options: {{
-                        responsive: true, maintainAspectRatio: false,
-                        scales: {{
-                            x: {{ ticks: {{ color: '#8b949e', maxTicksLimit: 10 }} }},
-                            y: {{ position: 'left' }},
-                            y1: {{ position: 'right', grid: {{ drawOnChartArea: false }} }}
-                        }}
-                    }}
+                    options: {{ responsive: true, maintainAspectRatio: false, scales: {{ x: {{ ticks: {{ color: '#8b949e', maxTicksLimit: 10 }} }}, y: {{ position: 'left' }}, y1: {{ position: 'right', grid: {{ drawOnChartArea: false }} }} }} }}
                 }});
             }}
             window.onload = run;
