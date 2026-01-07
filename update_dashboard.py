@@ -7,7 +7,6 @@ from datetime import datetime
 
 # =============================================================================
 # MODULO 1: DATA_INGESTION
-# Recupero dati grezzi da Yahoo Finance
 # =============================================================================
 def fetch_market_data():
     tickers = ['^STOXX50E', '^GSPC', '^N225', '^VIX', 'ES=F']
@@ -18,7 +17,6 @@ def fetch_market_data():
 
 # =============================================================================
 # MODULO 2: STRATEGY_CORE
-# Logica matematica, segnali e calcolo PnL "Onesto"
 # =============================================================================
 def calculate_quant_logic(prices, opens):
     df = pd.DataFrame(index=prices.index)
@@ -28,7 +26,6 @@ def calculate_quant_logic(prices, opens):
     df['FUT_R'] = (prices['ES=F'] / prices['ES=F'].shift(1)) - 1
     df['VIX'] = prices['^VIX']
     
-    # Costi inclusi: 10€/punto e -2.0 punti slippage
     df['PNL_UNITARIO'] = ((df['EU_C'] - df['EU_O']) - 2.0) * 10
     df['MOM_SIGNAL'] = (df['USA_R'] + df['JAP_R'] + df['FUT_R']) / 3
     
@@ -50,21 +47,47 @@ def calculate_quant_logic(prices, opens):
     return history, live_snapshot
 
 # =============================================================================
-# MODULO 3: UI_CONTROLS
-# Gestione input utente e pannello segnali live
+# MODULO 6: MULTILANGUAGE_MANAGER (Nuovo!)
+# Gestisce le traduzioni per: EN, DE, FR, ES, ZH
 # =============================================================================
-# (Definito all'interno della funzione generate_visual_interface)
+def get_language_pack():
+    return {
+        "en": {
+            "title": "QUANT-PRO V4", "sync": "Modulo 1: Data Sync", "core": "MODULO 2: CORE_LOGIC",
+            "controls": "MODULO 3: UI_CONTROLS", "chart": "MODULO 4: CHART_ENGINE",
+            "threshold": "MOMENTUM THRESHOLD (%)", "profit": "NET PROFIT", "equity": "Equity Curve (€)"
+        },
+        "de": {
+            "title": "QUANT-PRO V4", "sync": "Modul 1: Datensynchronizzazione", "core": "MODUL 2: KERNLOGIK",
+            "controls": "MODUL 3: STEUERUNG", "chart": "MODUL 4: DIAGRAMM",
+            "threshold": "MOMENTUM-SCHWELLE (%)", "profit": "NETTOGEWINN", "equity": "Equity-Kurve (€)"
+        },
+        "fr": {
+            "title": "QUANT-PRO V4", "sync": "Module 1: Sync Données", "core": "MODULE 2: LOGIQUE CORE",
+            "controls": "MODULE 3: CONTRÔLES UI", "chart": "MODULE 4: MOTEUR GRAPHIQUE",
+            "threshold": "SEUIL DE MOMENTUM (%)", "profit": "PROFIT NET", "equity": "Courbe d'équité (€)"
+        },
+        "es": {
+            "title": "QUANT-PRO V4", "sync": "Módulo 1: Sinc. Datos", "core": "MÓDULO 2: LÓGICA CORE",
+            "controls": "MÓDULO 3: CONTROLES UI", "chart": "MÓDULO 4: MOTOR GRÁFICO",
+            "threshold": "UMBRAL DE MOMENTUM (%)", "profit": "BENEFICIO NETO", "equity": "Curva de Equidad (€)"
+        },
+        "zh": {
+            "title": "QUANT-PRO V4", "sync": "模块 1: 数据同步", "core": "模块 2: 核心逻辑",
+            "controls": "模块 3: 界面控制", "chart": "模块 4: 图表引擎",
+            "threshold": "动量阈值 (%)", "profit": "净利润", "equity": "权益曲线 (€)"
+        }
+    }
 
 # =============================================================================
-# MODULO 4: CHART_ENGINE
-# Rendering grafico professionale e performance
+# MODULO 3 & 4: UI_RENDERER
 # =============================================================================
-# (Definito all'interno della funzione generate_visual_interface)
-
 def generate_visual_interface(history, live):
+    lang_pack = get_language_pack()
+    
     html_code = f"""
     <!DOCTYPE html>
-    <html lang="it">
+    <html lang="en">
     <head>
         <meta charset="UTF-8">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -75,6 +98,7 @@ def generate_visual_interface(history, live):
             .nav-header {{ border-bottom: 2px solid var(--accent); padding: 15px; background: var(--card); }}
             .card-mod {{ background: var(--card); border: 1px solid #30363d; border-radius: 8px; padding: 20px; position: relative; }}
             .tag {{ position: absolute; top: -10px; right: 10px; background: var(--accent); color: white; font-size: 9px; padding: 2px 7px; border-radius: 4px; font-weight: bold; }}
+            .lang-select {{ background: #161b22; color: #fff; border: 1px solid #30363d; border-radius: 4px; padding: 5px; }}
             input {{ background: #fff !important; color: #000 !important; font-weight: bold; text-align: center; }}
         </style>
     </head>
@@ -82,12 +106,21 @@ def generate_visual_interface(history, live):
         <div class="nav-header shadow mb-4">
             <div class="container-fluid d-flex justify-content-between align-items-center">
                 <div>
-                    <h1 class="h3 m-0 text-white">QUANT-PRO <span class="text-success">V4</span></h1>
-                    <small class="text-secondary text-uppercase" style="letter-spacing:1px">Modulo 1: Data Sync | {live['last_update']}</small>
+                    <h1 class="h3 m-0 text-white" id="ui-title">{lang_pack['en']['title']}</h1>
+                    <small class="text-secondary text-uppercase" id="ui-sync">{lang_pack['en']['sync']} | {live['last_update']}</small>
                 </div>
-                <div class="text-end border-start ps-4">
-                    <span class="text-secondary small d-block">MODULO 2: CORE_LOGIC</span>
-                    <div id="signal-display" class="h2 fw-bold text-warning m-0">---</div>
+                <div class="d-flex align-items-center">
+                    <div class="me-4 text-end">
+                        <span class="text-secondary small d-block" id="ui-core">{lang_pack['en']['core']}</span>
+                        <div id="signal-display" class="h2 fw-bold text-warning m-0">---</div>
+                    </div>
+                    <select class="lang-select" id="lang-switch" onchange="run()">
+                        <option value="en">English 🇺🇸</option>
+                        <option value="de">Deutsch 🇩🇪</option>
+                        <option value="fr">Français 🇫🇷</option>
+                        <option value="es">Español 🇪🇸</option>
+                        <option value="zh">中文 🇨🇳</option>
+                    </select>
                 </div>
             </div>
         </div>
@@ -96,15 +129,15 @@ def generate_visual_interface(history, live):
             <div class="row g-3">
                 <div class="col-lg-3">
                     <div class="card-mod shadow-sm">
-                        <span class="tag">MODULO 3: UI_CONTROLS</span>
-                        <label class="small fw-bold text-secondary mb-2 d-block">SOGLIA MOMENTUM (%)</label>
+                        <span class="tag" id="tag-controls">{lang_pack['en']['controls']}</span>
+                        <label class="small fw-bold text-secondary mb-2 d-block" id="ui-threshold-label">{lang_pack['en']['threshold']}</label>
                         <input type="number" id="thr" class="form-control form-control-lg mb-4" value="0.30" step="0.05" oninput="run()">
                         <div id="kpi-box"></div>
                     </div>
                 </div>
                 <div class="col-lg-9">
                     <div class="card-mod shadow-sm">
-                        <span class="tag">MODULO 4: CHART_ENGINE</span>
+                        <span class="tag" id="tag-chart">{lang_pack['en']['chart']}</span>
                         <div style="height: 520px;"><canvas id="main-chart"></canvas></div>
                     </div>
                 </div>
@@ -115,18 +148,28 @@ def generate_visual_interface(history, live):
             const raw = {json.dumps(history)};
             const lM = {live['mom']};
             const lV = {live['vix']};
+            const langPack = {json.dumps(lang_pack)};
             let chart = null;
 
             function run() {{
+                const lang = document.getElementById('lang-switch').value;
                 const t = parseFloat(document.getElementById('thr').value) / 100;
-                
-                // Update Modulo 3: Signal
+                const tP = langPack[lang];
+
+                // Aggiornamento Lingua Interfaccia
+                document.getElementById('ui-title').innerText = tP.title;
+                document.getElementById('ui-core').innerText = tP.core;
+                document.getElementById('ui-threshold-label').innerText = tP.threshold;
+                document.getElementById('tag-controls').innerText = tP.controls;
+                document.getElementById('tag-chart').innerText = tP.chart;
+
+                // Segnale
                 let sig = "FLAT ⚪";
                 if (lM > t && lV < 25) sig = "LONG 🟢";
                 else if (lM < -t && lV < 32) sig = "SHORT 🔴";
                 document.getElementById('signal-display').innerText = sig;
 
-                // Update Modulo 2: PnL Calculation
+                // Calcolo PnL
                 let cap = 20000; let curve = []; let days = [];
                 raw.forEach(r => {{
                     let s = 0;
@@ -137,17 +180,18 @@ def generate_visual_interface(history, live):
 
                 document.getElementById('kpi-box').innerHTML = `
                     <div class="text-center p-3 rounded bg-black border border-secondary mt-2">
-                        <span class="text-secondary small">NET PROFIT</span>
+                        <span class="text-secondary small">${{tP.profit}}</span>
                         <h2 class="${{cap >= 20000 ? 'text-success' : 'text-danger'}} mt-1">€ ${{ (cap-20000).toLocaleString('it-IT', {{maximumFractionDigits: 0}}) }}</h2>
                     </div>`;
 
-                // Update Modulo 4: Chart
+                // Chart
                 if (chart) chart.destroy();
                 chart = new Chart(document.getElementById('main-chart'), {{
                     type: 'line',
                     data: {{
                         labels: days,
                         datasets: [{{
+                            label: tP.equity,
                             data: curve,
                             borderColor: '#238636',
                             borderWidth: 2,
@@ -172,13 +216,12 @@ def generate_visual_interface(history, live):
 
 # =============================================================================
 # MODULO 5: SYSTEM_ORCHESTRATOR
-# Coordinamento di tutti i moduli e distribuzione file
 # =============================================================================
 try:
     p, o = fetch_market_data()
     hist, metrics = calculate_quant_logic(p, o)
     page = generate_visual_interface(hist, metrics)
     with open("index.html", "w", encoding="utf-8") as f: f.write(page)
-    print("✅ Modulo 5: Orchestrazione completata con successo.")
+    print("✅ Modulo 5: Orchestrazione completata.")
 except Exception as e:
     print(f"❌ Errore Modulo 5: {e}")
