@@ -5,37 +5,28 @@ import numpy as np
 import json
 from datetime import datetime
 
-# =============================================================================
-# MODULO 1: DATA_INGESTION
-# =============================================================================
+# --- MODULO 1: DATA_INGESTION ---
 def fetch_market_data():
-    # Aggiunto ^GDAXI (DAX) alla lista dei ticker
     tickers = ['^STOXX50E', '^GDAXI', '^GSPC', '^N225', '^VIX', 'ES=F']
     df = yf.download(tickers, period="max", interval="1d", auto_adjust=True, progress=False)
     prices = df['Close'] if isinstance(df.columns, pd.MultiIndex) else df
     opens = df['Open'] if isinstance(df.columns, pd.MultiIndex) else df
     return prices, opens
 
-# =============================================================================
-# MODULO 2: STRATEGY_CORE (Multi-Asset)
-# =============================================================================
+# --- MODULO 2: STRATEGY_CORE ---
 def calculate_quant_logic(prices, opens):
     df = pd.DataFrame(index=prices.index)
-    
-    # Dati EuroStoxx50
     df['EU_O'], df['EU_C'] = opens['^STOXX50E'], prices['^STOXX50E']
-    # Dati DAX
     df['DAX_O'], df['DAX_C'] = opens['^GDAXI'], prices['^GDAXI']
     
-    # Indicatori comuni
     df['USA_R'] = prices['^GSPC'].pct_change().shift(1)
     df['JAP_R'] = prices['^N225'].pct_change()
     df['FUT_R'] = (prices['ES=F'] / prices['ES=F'].shift(1)) - 1
     df['VIX'] = prices['^VIX']
     
-    # Calcolo PnL Strategia per entrambi (10€/punto, -2.0 slippage)
+    # Calcolo PnL (10€/punto, -2.0 slippage)
     df['PNL_EU'] = ((df['EU_C'] - df['EU_O']) - 2.0) * 10
-    df['PNL_DAX'] = ((df['DAX_C'] - df['DAX_O']) - 2.0) * 25 # DAX moltiplicatore standard è spesso 25, teniamo 25 o 10? Usiamo 25 per realismo.
+    df['PNL_DAX'] = ((df['DAX_C'] - df['DAX_O']) - 2.0) * 10
     
     df['MOM_SIGNAL'] = (df['USA_R'] + df['JAP_R'] + df['FUT_R']) / 3
     df = df.dropna()
@@ -59,28 +50,27 @@ def calculate_quant_logic(prices, opens):
     }
     return history, live_snapshot
 
-# =============================================================================
-# MODULO 6: MULTILANGUAGE_MANAGER
-# =============================================================================
+# --- MODULO 6: MULTILANGUAGE_MANAGER ---
 def get_language_pack():
     return {
         "en": {
-            "title": "QUANT-PRO V5", "sync": "Modulo 1: Data Sync", "core": "MODULO 2: CORE_LOGIC",
+            "title": "QUANT-PRO", "sync": "Modulo 1: Data Sync", "core": "MODULO 2: CORE_LOGIC",
             "controls": "MODULO 3: UI_CONTROLS", "chart": "MODULO 4: CHART_ENGINE",
             "threshold": "MOMENTUM THRESHOLD (%)", "profit": "NET PROFIT", 
-            "equity": "Equity Curve (€)", "benchmark": "Index Reference", "asset": "SELECT ASSET"
+            "equity": "Equity Curve (€)", "benchmark": "Index Reference", 
+            "select_asset": "CHOOSE YOUR TRADING ASSET"
         },
         "de": {
-            "title": "QUANT-PRO V5", "sync": "Modul 1: Daten", "core": "MODUL 2: KERNLOGIK",
+            "title": "QUANT-PRO", "sync": "Modul 1: Daten", "core": "MODUL 2: KERNLOGIK",
             "controls": "MODUL 3: STEUERUNG", "chart": "MODUL 4: CHART",
             "threshold": "SCHWELLE (%)", "profit": "GEWINN", 
-            "equity": "Equity (€)", "benchmark": "Index-Referenz", "asset": "ASSET WÄHLEN"
-        } # ... altre lingue seguono lo stesso schema
+            "equity": "Equity (€)", "benchmark": "Index-Referenz",
+            "select_asset": "WÄHLEN SIE IHR HANDELSOBJEKT"
+        }
+        # Aggiungere altre lingue qui...
     }
 
-# =============================================================================
-# MODULO 3 & 4: UI & CHART ENGINE
-# =============================================================================
+# --- MODULO 3 & 4: UI & CHART ---
 def generate_visual_interface(history, live):
     lang_pack = get_language_pack()
     html_code = f"""
@@ -91,40 +81,56 @@ def generate_visual_interface(history, live):
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <style>
-            :root {{ --bg: #0d1117; --card: #161b22; --accent: #238636; --dax: #ffcc00; }}
+            :root {{ --bg: #0d1117; --card: #161b22; --accent: #238636; }}
             body {{ background-color: var(--bg); color: #c9d1d9; font-family: 'Inter', sans-serif; }}
-            .nav-header {{ border-bottom: 2px solid var(--accent); padding: 15px; background: var(--card); }}
-            .card-mod {{ background: var(--card); border: 1px solid #30363d; border-radius: 8px; padding: 20px; position: relative; }}
+            .nav-header {{ border-bottom: 2px solid var(--accent); padding: 20px; background: var(--card); }}
+            .asset-selector-box {{ 
+                background: #1c2128; border: 2px solid var(--accent); border-radius: 12px; padding: 15px; margin-bottom: 25px;
+            }}
+            .card-mod {{ background: var(--card); border: 1px solid #30363d; border-radius: 8px; padding: 20px; position: relative; height: 100%; }}
             .tag {{ position: absolute; top: -10px; right: 10px; background: var(--accent); color: white; font-size: 9px; padding: 2px 7px; border-radius: 4px; font-weight: bold; }}
-            .custom-select {{ background: #1c2128; color: #fff; border: 1px solid #444c56; border-radius: 6px; padding: 8px; width: 100%; }}
+            .custom-select-lg {{ 
+                background: #0d1117; color: #fff; border: 1px solid #444c56; border-radius: 8px; 
+                padding: 12px; width: 100%; font-size: 1.2rem; font-weight: bold; cursor: pointer;
+            }}
+            .custom-select-lg:focus {{ border-color: var(--accent); outline: none; box-shadow: 0 0 10px rgba(35,134,54,0.5); }}
             input {{ background: #fff !important; color: #000 !important; font-weight: bold; text-align: center; }}
         </style>
     </head>
     <body class="p-3">
-        <div class="nav-header shadow mb-4">
+        <div class="nav-header shadow-lg mb-4 rounded">
             <div class="container-fluid d-flex justify-content-between align-items-center">
                 <div>
-                    <h1 class="h3 m-0 text-white" id="ui-title">QUANT-PRO V5</h1>
-                    <small class="text-secondary text-uppercase" id="ui-sync">Data Sync | {live['last_update']}</small>
+                    <h1 class="h2 m-0 text-white" id="ui-title">QUANT-PRO <span class="text-success">V5.1</span></h1>
+                    <small class="text-secondary" id="ui-sync">MODULO 1 | {live['last_update']}</small>
                 </div>
                 <div class="d-flex align-items-center gap-3">
-                    <select class="custom-select" id="asset-select" onchange="run()">
-                        <option value="eu">EUROSTOXX 50 🇪🇺</option>
-                        <option value="dax">DAX 40 🇩🇪</option>
-                    </select>
-                    <select class="custom-select" id="lang-switch" onchange="run()">
+                    <select class="lang-select btn btn-outline-secondary btn-sm" id="lang-switch" onchange="run()">
                         <option value="en">English 🇺🇸</option>
                         <option value="de">Deutsch 🇩🇪</option>
                     </select>
+                    <div id="signal-display" class="h2 fw-bold text-warning m-0 ms-4">---</div>
                 </div>
             </div>
         </div>
 
         <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="asset-selector-box shadow-sm">
+                        <label class="small fw-bold text-accent mb-2 d-block text-uppercase" id="ui-asset-label" style="color:var(--accent)">{lang_pack['en']['select_asset']}</label>
+                        <select class="custom-select-lg" id="asset-select" onchange="run()">
+                            <option value="eu">EURO STOXX 50 (Blue-chip European Stocks) 🇪🇺</option>
+                            <option value="dax">DAX 40 (German Stock Market Index) 🇩🇪</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
             <div class="row g-3">
                 <div class="col-lg-3">
                     <div class="card-mod shadow-sm">
-                        <span class="tag" id="tag-controls">CONTROLS</span>
+                        <span class="tag" id="tag-controls">MODULO 3</span>
                         <label class="small fw-bold text-secondary mb-2 d-block" id="ui-threshold-label">THRESHOLD (%)</label>
                         <input type="number" id="thr" class="form-control form-control-lg mb-4" value="0.30" step="0.05" oninput="run()">
                         <div id="kpi-box"></div>
@@ -132,8 +138,8 @@ def generate_visual_interface(history, live):
                 </div>
                 <div class="col-lg-9">
                     <div class="card-mod shadow-sm">
-                        <span class="tag" id="tag-chart">CHART ENGINE</span>
-                        <div style="height: 520px;"><canvas id="main-chart"></canvas></div>
+                        <span class="tag" id="tag-chart">MODULO 4</span>
+                        <div style="height: 500px;"><canvas id="main-chart"></canvas></div>
                     </div>
                 </div>
             </div>
@@ -152,31 +158,36 @@ def generate_visual_interface(history, live):
                 const t = parseFloat(document.getElementById('thr').value) / 100;
                 const tP = langPack[lang] || langPack['en'];
 
-                // Segnale Live
-                let sig = "FLAT ⚪";
-                if (lM > t && lV < 25) sig = "LONG 🟢";
-                else if (lM < -t && lV < 32) sig = "SHORT 🔴";
-                
-                // Calcolo Backtest Dinamico in base all'asset
+                // Update UI Labels
+                document.getElementById('ui-asset-label').innerText = tP.select_asset;
+                document.getElementById('ui-threshold-label').innerText = tP.threshold;
+                document.getElementById('tag-controls').innerText = tP.controls;
+                document.getElementById('tag-chart').innerText = tP.chart;
+
+                // Calcolo Backtest
                 let cap = 20000; let curve = []; let days = []; let benchmark = [];
                 raw.forEach(r => {{
                     let s = 0;
                     if (r.m > t && r.v < 25) s = 1; else if (r.m < -t && r.v < 32) s = -1;
-                    
                     let pnl = (asset === 'eu') ? r.p_eu : r.p_dax;
                     let idx = (asset === 'eu') ? r.idx_eu : r.idx_dax;
-                    
                     cap += (s * pnl);
-                    curve.push(cap);
-                    days.push(r.d);
-                    benchmark.push(idx);
+                    curve.push(cap); days.push(r.d); benchmark.push(idx);
                 }});
 
+                // KPI Display
+                const profit = cap - 20000;
                 document.getElementById('kpi-box').innerHTML = `
                     <div class="text-center p-3 rounded bg-black border border-secondary mt-2">
-                        <span class="text-secondary small">NET PROFIT (${{asset.toUpperCase()}})</span>
-                        <h2 class="${{cap >= 20000 ? 'text-success' : 'text-danger'}} mt-1">€ ${{ (cap-20000).toLocaleString('it-IT', {{maximumFractionDigits: 0}}) }}</h2>
+                        <span class="text-secondary small">${{tP.profit}}</span>
+                        <h2 class="${{profit >= 0 ? 'text-success' : 'text-danger'}} mt-1">€ ${{ profit.toLocaleString('it-IT', {{maximumFractionDigits: 0}}) }}</h2>
                     </div>`;
+
+                // Signal Display
+                let sig = "FLAT ⚪";
+                if (lM > t && lV < 25) sig = "LONG 🟢";
+                else if (lM < -t && lV < 32) sig = "SHORT 🔴";
+                document.getElementById('signal-display').innerText = sig;
 
                 if (chart) chart.destroy();
                 chart = new Chart(document.getElementById('main-chart'), {{
@@ -192,7 +203,7 @@ def generate_visual_interface(history, live):
                                 borderWidth: 2, pointRadius: 0, fill: true, yAxisID: 'y'
                             }},
                             {{
-                                label: tP.benchmark + " (" + asset.toUpperCase() + ")",
+                                label: asset.toUpperCase() + " Index",
                                 data: benchmark,
                                 borderColor: '#58a6ff',
                                 borderWidth: 1, pointRadius: 0, fill: false, yAxisID: 'y1'
@@ -203,10 +214,11 @@ def generate_visual_interface(history, live):
                         responsive: true, maintainAspectRatio: false,
                         interaction: {{ mode: 'index', intersect: false }},
                         scales: {{
-                            x: {{ ticks: {{ color: '#8b949e', maxTicksLimit: 12 }} }},
-                            y: {{ position: 'left', title: {{ display: true, text: 'Equity (€)' }} }},
-                            y1: {{ position: 'right', grid: {{ drawOnChartArea: false }}, title: {{ display: true, text: 'Index Points' }} }}
-                        }}
+                            x: {{ ticks: {{ color: '#8b949e', maxTicksLimit: 10 }} }},
+                            y: {{ position: 'left', title: {{ display: true, text: 'Equity (€)', color: '#238636' }} }},
+                            y1: {{ position: 'right', grid: {{ drawOnChartArea: false }}, title: {{ display: true, text: 'Index Points', color: '#58a6ff' }} }}
+                        }},
+                        plugins: {{ legend: {{ labels: {{ color: '#c9d1d9' }} }} }}
                     }}
                 }});
             }}
@@ -217,10 +229,8 @@ def generate_visual_interface(history, live):
     """
     return html_code
 
-# =============================================================================
-# MODULO 5: SYSTEM_ORCHESTRATOR
-# =============================================================================
+# --- MODULO 5: ORCHESTRATOR ---
 p, o = fetch_market_data()
-hist, metrics = calculate_quant_logic(p, o)
-page = generate_visual_interface(hist, metrics)
+h, l = calculate_quant_logic(p, o)
+page = generate_visual_interface(h, l)
 with open("index.html", "w", encoding="utf-8") as f: f.write(page)
