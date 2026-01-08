@@ -1,8 +1,8 @@
 name: Update Quant-Pro Dashboard
 on:
   schedule:
-    - cron: '5 8 * * 1-5' # Gira alle 09:05 italiane (lun-ven)
-  workflow_dispatch: # Ti permette di farlo partire a mano per testare
+    - cron: '5 8 * * 1-5'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -20,12 +20,12 @@ jobs:
         run: pip install yfinance pandas
 
       - name: Run Engine
-        run: python quant_pro_engine.py
+        run: python quant_pro_engine.py  # <-- Assicurati che questo nome sia corretto
 
       - name: Commit and Push
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
           git add index.html
-          git commit -m "Update Dashboard" || exit 0
+          git commit -m "Update Dashboard V7.6.6" || exit 0
           git push
