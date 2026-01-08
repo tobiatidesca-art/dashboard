@@ -1,28 +1,31 @@
-name: Daily Update
+name: Update Quant-Pro Dashboard
 on:
   schedule:
-    - cron: '05 08 * * 1-5'
-  workflow_dispatch:
+    - cron: '5 8 * * 1-5' # Gira alle 09:05 italiane (lun-ven)
+  workflow_dispatch: # Ti permette di farlo partire a mano per testare
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
-      - name: Checkout
+      - name: Checkout Repo
         uses: actions/checkout@v3
+
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
-      - name: Install Libs
-        run: pip install yfinance pandas numpy
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install yfinance pandas
+
       - name: Run Engine
-        run: python update_dashboard.py
+        run: python quant_pro_engine.py
+
       - name: Commit and Push
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
           git add index.html
-          git commit -m "Auto Update" || echo "No changes"
+          git commit -m "Update Dashboard" || exit 0
           git push
