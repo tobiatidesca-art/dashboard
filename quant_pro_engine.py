@@ -1,5 +1,5 @@
 # =============================================================================
-# QUANT-PRO V7.6.6 - GITHUB AUTOMATION VERSION
+# QUANT-PRO V7.7.0 - MULTI-LANGUAGE FULL SUPPORT
 # =============================================================================
 
 import os
@@ -114,7 +114,7 @@ html_template = f"""
     <div class="header-main">
         <div class="row align-items-center">
             <div class="col-md-3">
-                <span class="section-tag">Mod-1 Select Asset</span>
+                <span class="section-tag">Mod-1 Asset</span>
                 <select id="assetS" onchange="run()" class="form-select bg-primary text-white border-0 fw-bold mt-2 mb-2">
                     <option value="SX50E">EUROSTOXX 50</option>
                     <option value="DAX">DAX 40</option>
@@ -123,13 +123,13 @@ html_template = f"""
                     <option value="IBEX">IBEX 35</option>
                 </select>
                 <select id="langS" onchange="run()" class="form-select bg-dark text-white border-secondary">
-                    <option value="en">English 🇬🇧</option>
                     <option value="it" selected>Italiano 🇮🇹</option>
+                    <option value="en">English 🇬🇧</option>
                     <option value="es">Español 🇪🇸</option>
-                    <option value="zh">中文 🇨🇳</option>
-                    <option value="ja">日本語 🇯🇵</option>
                     <option value="fr">Français 🇫🇷</option>
                     <option value="de">Deutsch 🇩🇪</option>
+                    <option value="zh">中文 🇨🇳</option>
+                    <option value="ja">日本語 🇯🇵</option>
                 </select>
             </div>
             <div class="col-md-7 px-4">
@@ -167,28 +167,22 @@ html_template = f"""
     <div class="row g-4">
         <div class="col-xl-3">
             <div class="card-custom">
-                <h6 class="val-big-label mb-3">Parameters Mod-2</h6>
+                <h6 class="val-big-label mb-3" id="t-param">Parameters</h6>
                 <div class="d-flex align-items-center mb-3">
-                    <label class="me-3 fw-bold">THRESHOLD:</label>
+                    <label class="me-3 fw-bold" id="t-thr">THRESHOLD:</label>
                     <input type="number" id="thr" class="form-control form-control-lg bg-dark text-white border-warning w-50" value="0.30" step="0.05" oninput="run()">
                 </div>
-                
                 <div id="kpi-grid" class="row g-2 mb-3"></div>
-
                 <div class="explainer-box">
                     <strong id="exp-title">A cosa serve la Soglia?</strong><br>
-                    <span id="exp-desc">
-                        Determina la sensibilità del segnale. 
-                        <b>Aumentala (es. 0.50)</b> per filtrare il rumore e fare meno trade più sicuri. 
-                        <b>Diminuila (es. 0.15)</b> per essere più aggressivo ed entrare su movimenti più piccoli.
-                    </span>
+                    <span id="exp-desc">--</span>
                 </div>
             </div>
         </div>
         <div class="col-xl-9">
             <div class="card-custom">
                 <div class="d-flex justify-content-between align-items-center">
-                    <span class="section-tag">Mod-4 Performance</span>
+                    <span class="section-tag">Performance</span>
                     <div class="btn-group">
                         <button class="zoom-btn" onclick="setZoom(this, 22)">1M</button>
                         <button class="zoom-btn" onclick="setZoom(this, 66)">3M</button>
@@ -203,7 +197,7 @@ html_template = f"""
     </div>
 
     <div class="card-custom mt-4">
-        <span class="section-tag">Mod-5 Journal</span>
+        <span class="section-tag">Journal</span>
         <div class="table-container mt-3">
             <table class="table table-dark table-hover m-0">
                 <thead class="sticky-top bg-dark border-bottom border-secondary"><tr id="table-head"></tr></thead>
@@ -219,16 +213,46 @@ html_template = f"""
 
         const i18n = {{
             en: {{ 
-                entry:"Entry", sigTime: "SIGNAL AT 09:00 CET", 
+                entry:"Entry", sigTime: "SIGNAL AT 09:00 CET", param: "Parameters",
                 expT: "What is Threshold?",
                 expD: "Determines signal sensitivity. Increase it (e.g. 0.50) to filter noise for fewer, safer trades. Decrease it (e.g. 0.15) to be more aggressive on smaller moves.",
                 kpi:["Profit", "Win Rate", "Trades", "Max DD", "PF"], sig:["FLAT","LONG","SHORT"], cols:["DATE","TYPE","IN","OUT","PTS","PNL"] 
             }},
             it: {{ 
-                entry:"Ingresso", sigTime: "SEGNALE ORE 09:00 CET", 
+                entry:"Ingresso", sigTime: "SEGNALE ORE 09:00 CET", param: "Parametri",
                 expT: "A cosa serve la Soglia?",
                 expD: "Determina la sensibilità del segnale. Aumentala (es. 0.50) per filtrare il rumore e fare meno trade più sicuri. Diminuila (es. 0.15) per essere più aggressivo su movimenti piccoli.",
                 kpi:["Profitto", "Win Rate", "Trade", "Max DD", "PF"], sig:["FLAT","LONG","SHORT"], cols:["DATA","TIPO","IN","OUT","PTI","PNL"] 
+            }},
+            es: {{ 
+                entry:"Entrada", sigTime: "SEÑAL A LAS 09:00 CET", param: "Parámetros",
+                expT: "¿Qué ès el Umbral?",
+                expD: "Determina la sensibilidad de la señal. Auméntalo (ej. 0.50) para filtrar el ruido. Disminúyelo (ej. 0.15) para ser más agresivo ante movimientos pequeños.",
+                kpi:["Beneficio", "Ganas", "Operaciones", "Max DD", "PF"], sig:["FLAT","LONG","SHORT"], cols:["FECHA","TIPO","IN","OUT","PTS","PNL"] 
+            }},
+            fr: {{ 
+                entry:"Entrée", sigTime: "SIGNAL À 09:00 CET", param: "Paramètres",
+                expT: "C'est quoi le Seuil?",
+                expD: "Détermine la sensibilité du signal. Augmentez-le (ex. 0.50) pour filtrer le bruit. Diminuez-le (ex. 0.15) pour être plus agressif sur de petits mouvements.",
+                kpi:["Profit", "Win Rate", "Trades", "Max DD", "PF"], sig:["FLAT","LONG","SHORT"], cols:["DATE","TYPE","IN","OUT","PTS","PNL"] 
+            }},
+            de: {{ 
+                entry:"Einstieg", sigTime: "SIGNAL UM 09:00 CET", param: "Parameter",
+                expT: "Was ist der Schwellenwert?",
+                expD: "Bestimmt die Signalempfindlichkeit. Erhöhen (z.B. 0.50), um Rauschen zu filtern. Verringern (z.B. 0.15), um bei kleineren Bewegungen aggressiver zu sein.",
+                kpi:["Gewinn", "Win Rate", "Trades", "Max DD", "PF"], sig:["FLAT","LONG","SHORT"], cols:["DATUM","TYP","IN","OUT","PKT","PNL"] 
+            }},
+            zh: {{ 
+                entry:"入场价格", sigTime: "信号时间 09:00 CET", param: "参数设置",
+                expT: "什么是阈值？",
+                expD: "决定信号灵敏度。提高它（如 0.50）以过滤噪音，进行更少、更安全的交易。降低它（如 0.15）以在较小的波动中更具攻击性。",
+                kpi:["利润", "胜率", "交易次数", "最大回撤", "PF"], sig:["平仓","做多","做空"], cols:["日期","类型","入场","出场","点数","盈亏"] 
+            }},
+            ja: {{ 
+                entry:"エントリー", sigTime: "信号 09:00 CET", param: "パラメーター",
+                expT: "しきい値とは？",
+                expD: "信号の感度を決定します。ノイズを避けるには上げ（例：0.50）、より積極的に取引するには下げ（例：0.15）ます。",
+                kpi:["利益", "勝率", "取引数", "最大ドローダウン", "PF"], sig:["フラット","ロング","ショート"], cols:["日付","タイプ","入","出","ポイント","損益"] 
             }}
         }};
 
@@ -255,6 +279,7 @@ html_template = f"""
 
             document.getElementById('table-head').innerHTML = t.cols.map(c => `<th>${{c}}</th>`).join('');
             document.getElementById('t-entry').innerText = t.entry;
+            document.getElementById('t-param').innerText = t.param;
             document.getElementById('sig-time-label').innerText = t.sigTime;
             document.getElementById('exp-title').innerText = t.expT;
             document.getElementById('exp-desc').innerText = t.expD;
@@ -326,6 +351,7 @@ html_template = f"""
 </html>
 """
 
-# SALVATAGGIO PER GITHUB (SOSTITUISCE FILES.DOWNLOAD)
 with open("index.html", "w", encoding="utf-8") as f:
     f.write(html_template)
+
+print("File index.html generato con successo!")
