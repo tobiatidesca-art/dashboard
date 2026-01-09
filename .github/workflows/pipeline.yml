@@ -2,15 +2,12 @@ name: Quant-Pro Pipeline V7
 
 on:
   schedule:
-    # Esecuzione alle 07:50 UTC (08:50 ora italiana) dal Lunedì al Venerdì
-    - cron: '50 7 * * 1-5'
-  workflow_dispatch:
-    # Permette l'esecuzione manuale per testare il sistema
+    - cron: '50 7 * * 1-5' # Gira alle 08:50 italiane
+  workflow_dispatch:      # Permette il lancio manuale
 
 jobs:
   run-trading-system:
     runs-on: ubuntu-latest
-    
     steps:
       - name: 📂 Checkout Codice
         uses: actions/checkout@v3
@@ -18,28 +15,23 @@ jobs:
       - name: 🐍 Setup Python 3.11
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11' # Versione aggiornata per compatibilità yfinance
+          python-version: '3.11' # Risolve l'errore TypeError
 
       - name: 📦 Installa Librerie
-        run: |
-          python -m pip install --upgrade pip
-          pip install yfinance pandas numpy requests
+        run: pip install yfinance pandas numpy requests
 
       - name: 📊 Esegui Analisi (Genera Dashboard)
-        # Utilizza il file che abbiamo visto nella tua struttura
         run: python quant_pro_engine.py 
 
       - name: 💾 Salva Risultati su GitHub
         run: |
           git config --global user.name "Quant-Bot"
           git config --global user.email "bot@quant.pro"
-          # Aggiunge l'index.html generato dallo script
           git add index.html
-          git commit -m "Update Dashboard $(date)" || echo "Nessuna modifica rilevata"
+          git commit -m "Update Dashboard $(date)" || echo "No changes"
           git push
 
       - name: ✈️ Invia Notifica Telegram
-        # Esegue il tuo file bot.py usando i Secrets salvati su GitHub
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
