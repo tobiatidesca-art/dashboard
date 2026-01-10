@@ -18,46 +18,60 @@ def analizza_strumenti():
         data = json.loads(json_match.group(1))
         indices = data.get('indices', {})
         
-        moltiplicatori = {
-            "SX50E": 10, "DAX": 25, "FTSEMIB": 5, "CAC": 10, "IBEX": 10
-        }
-        
-        nomi_strumenti = {
-            "SX50E": "EUROSTOXX 50", "DAX": "DAX 40", "FTSEMIB": "FTSE MIB 🇮🇹", "CAC": "CAC 40", "IBEX": "IBEX 35"
-        }
+        moltiplicatori = {"SX50E": 10, "DAX": 25, "FTSEMIB": 5, "CAC": 10, "IBEX": 10}
+        nomi_strumenti = {"SX50E": "EUROSTOXX 50", "DAX": "DAX 40", "FTSEMIB": "FTSE MIB 🇮🇹", "CAC": "CAC 40", "IBEX": "IBEX 35"}
 
-        report = "🤖 *REPORT QUANT-PRO + LIVE ENTRY*\n"
+        report = "🤖 *REPORT QUANT-PRO + TRADE HISTORY*\n"
         report += "───────────────────\n"
         
         for key, info in indices.items():
             history = info.get('history', [])
             if not history: continue
             
-            ultime_20 = history[-20:]
-            ultima_op = history[-1]
+            mult = moltiplicatori.get(key, 1)
             
-            # Dati segnale e prezzo
+            # 1. SEGNALE LIVE (Ultimo elemento della storia)
+            ultima_op = history[-1]
             m_val = ultima_op['m'] * 100
-            prezzo_ingresso = ultima_op.get('in', 0) # Prezzo di ingresso dell'ultima operazione
+            prezzo_ingresso_live = ultima_op.get('in', 0)
             
             if m_val > 0.30: segnale = "LONG 🟢"
             elif m_val < -0.30: segnale = "SHORT 🔴"
             else: segnale = "FLAT ⚪"
             
-            # Calcolo PnL Euro e Sequenza
-            pnl_euro = 0
-            seq = ""
-            mult = moltiplicatori.get(key, 1)
-            for op in ultime_20:
-                punti = op.get('out', 0) - op.get('in', 0)
-                pnl_euro += (punti * mult)
-                seq += "✅" if punti > 0 else "❌"
-            
             report += f"*{nomi_strumenti.get(key, key)}*\n"
             report += f"🎯 Segnale: {segnale}\n"
-            report += f"📍 Entry Price: *{prezzo_ingresso:,.1f}*\n" # Aggiunto Prezzo Ingresso
-            report += f"💰 PnL 20 op: *{pnl_euro:,.2f}€*\n"
-            report += f"📜 Seq: {seq}\n"
+            report += f"📍 Live Entry: *{prezzo_ingresso_live:,.1f}*\n\n"
+            
+            # 2. RICERCA ULTIME 3 OPERAZIONI REALI (NON FLAT)
+            trade_reali = []
+            # Scorriamo la storia al contrario
+            for h in reversed(history):
+                m_h = h['m'] * 100
+                if abs(m_h) > 0.30:
+                    tipo = "LONG" if m_h > 0.30 else "SHORT"
+                    punti = (h['out'] - h['in']) if tipo == "LONG" else (h['in'] - h['out'])
+                    # Sottraiamo 2 punti di slippage come nella tua dashboard
+                    punti_netti = punti - 2 
+                    profitto = punti_netti * mult
+                    
+                    trade_reali.append({
+                        'data': h['d'],
+                        'tipo': tipo,
+                        'in': h['in'],
+                        'out': h['out'],
+                        'pnl': profitto
+                    })
+                if len(trade_reali) == 3: break # Ci fermiamo quando ne abbiamo 3
+
+            if trade_reali:
+                report += "📜 *Ultime 3 Operazioni:*\n"
+                for t in trade_reali:
+                    emoji = "✅" if t['pnl'] > 0 else "❌"
+                    report += f"{emoji} {t['data']} ({t['tipo']})\n"
+                    report += f"   In: {t['in']:,.1f} | Out: {t['out']:,.1f}\n"
+                    report += f"   PnL: *{t['pnl']:,.0f}€*\n"
+            
             report += "───────────────────\n"
             
         return report
