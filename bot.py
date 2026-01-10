@@ -2,6 +2,7 @@ import os
 import requests
 import re
 import json
+from datetime import datetime
 
 def analizza_strumenti():
     try:
@@ -21,7 +22,9 @@ def analizza_strumenti():
         moltiplicatori = {"SX50E": 10, "DAX": 25, "FTSEMIB": 5, "CAC": 10, "IBEX": 10}
         nomi_strumenti = {"SX50E": "EUROSTOXX 50", "DAX": "DAX 40", "FTSEMIB": "FTSE MIB 🇮🇹", "CAC": "CAC 40", "IBEX": "IBEX 35"}
 
-        report = "🤖 *REPORT QUANT-PRO + TRADE HISTORY*\n"
+        # 1. LINK IN CIMA
+        report = "🌐 [ACCEDI ALLA DASHBOARD](https://tobiatidesca-art.github.io/dashboard/)\n"
+        report += "🏛 *QUANT-PRO REPORT*\n"
         report += "───────────────────\n"
         
         for key, info in indices.items():
@@ -30,48 +33,44 @@ def analizza_strumenti():
             
             mult = moltiplicatori.get(key, 1)
             
-            # 1. SEGNALE LIVE (Ultimo elemento della storia)
+            # 2. SEGNALE LIVE CON DATA
             ultima_op = history[-1]
+            data_oggi = ultima_op.get('d', datetime.now().strftime('%Y-%m-%d'))
             m_val = ultima_op['m'] * 100
-            prezzo_ingresso_live = ultima_op.get('in', 0)
             
             if m_val > 0.30: segnale = "LONG 🟢"
             elif m_val < -0.30: segnale = "SHORT 🔴"
             else: segnale = "FLAT ⚪"
             
             report += f"*{nomi_strumenti.get(key, key)}*\n"
-            report += f"🎯 Segnale: {segnale}\n"
-            report += f"📍 Live Entry: *{prezzo_ingresso_live:,.1f}*\n\n"
+            report += f"📅 Data: {data_oggi}\n"
+            report += f"🎯 Segnale: {signale}\n"
+            report += f"📍 Entry: *{ultima_op.get('in', 0):,.1f}*\n\n"
             
-            # 2. RICERCA ULTIME 3 OPERAZIONI REALI (NON FLAT)
+            # 3. ULTIME 2 OPERAZIONI REALI (NON FLAT)
             trade_reali = []
-            # Scorriamo la storia al contrario
-            for h in reversed(history):
+            for h in reversed(history[:-1]): # Escludiamo l'ultima candela appena analizzata sopra
                 m_h = h['m'] * 100
                 if abs(m_h) > 0.30:
                     tipo = "LONG" if m_h > 0.30 else "SHORT"
                     punti = (h['out'] - h['in']) if tipo == "LONG" else (h['in'] - h['out'])
-                    # Sottraiamo 2 punti di slippage come nella tua dashboard
-                    punti_netti = punti - 2 
-                    profitto = punti_netti * mult
-                    
-                    trade_reali.append({
-                        'data': h['d'],
-                        'tipo': tipo,
-                        'in': h['in'],
-                        'out': h['out'],
-                        'pnl': profitto
-                    })
-                if len(trade_reali) == 3: break # Ci fermiamo quando ne abbiamo 3
-
-            if trade_reali:
-                report += "📜 *Ultime 3 Operazioni:*\n"
-                for t in trade_reali:
-                    emoji = "✅" if t['pnl'] > 0 else "❌"
-                    report += f"{emoji} {t['data']} ({t['tipo']})\n"
-                    report += f"   In: {t['in']:,.1f} | Out: {t['out']:,.1f}\n"
-                    report += f"   PnL: *{t['pnl']:,.0f}€*\n"
+                    pnl = (punti - 2) * mult # -2 punti slippage
+                    trade_reali.append(f"• {h['d']} ({tipo})\n  In: {h['in']:,.1f} | Out: {h['out']:,.1f} | PnL: *{pnl:,.0f}€*")
+                if len(trade_reali) == 2: break
             
+            if trade_reali:
+                report += "📊 *Ultime 2 Operazioni:*\n" + "\n".join(trade_reali) + "\n"
+
+            # 4. RISULTATO ULTIME 20 OPERAZIONI
+            pnl_20 = 0
+            for h_20 in history[-20:]:
+                m_20 = h_20['m'] * 100
+                if abs(m_20) > 0.30:
+                    tipo_20 = "LONG" if m_20 > 0.30 else "SHORT"
+                    punti_20 = (h_20['out'] - h_20['in']) if tipo_20 == "LONG" else (h_20['in'] - h_20['out'])
+                    pnl_20 += (punti_20 - 2) * mult
+
+            report += f"💰 *Risultato totale ultime 20 operazioni:* {pnl_20:,.0f}€\n"
             report += "───────────────────\n"
             
         return report
@@ -82,10 +81,9 @@ def invia_telegram():
     token = os.getenv('TELEGRAM_TOKEN')
     chat_id = os.getenv('TELEGRAM_CHAT_ID')
     if not token or not chat_id: return
-    
     testo = analizza_strumenti()
-    url = f"https://api.telegram.org/bot{token}/sendMessage"
-    requests.post(url, json={"chat_id": chat_id, "text": testo, "parse_mode": "Markdown"})
+    requests.post(f"https://api.telegram.org/bot{token}/sendMessage", 
+                  json={"chat_id": chat_id, "text": testo, "parse_mode": "Markdown", "disable_web_page_preview": True})
 
 if __name__ == "__main__":
     invia_telegram()
