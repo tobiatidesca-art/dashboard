@@ -38,23 +38,27 @@ def analizza_strumenti():
             data_oggi = ultima_op.get('d', datetime.now().strftime('%Y-%m-%d'))
             m_val = ultima_op['m'] * 100
             
-            if m_val > 0.30: segnale = "LONG 🟢"
-            elif m_val < -0.30: segnale = "SHORT 🔴"
-            else: segnale = "FLAT ⚪"
+            # Correzione qui: variabile 'segnale'
+            if m_val > 0.30: 
+                segnale = "LONG 🟢"
+            elif m_val < -0.30: 
+                segnale = "SHORT 🔴"
+            else: 
+                segnale = "FLAT ⚪"
             
             report += f"*{nomi_strumenti.get(key, key)}*\n"
             report += f"📅 Data: {data_oggi}\n"
-            report += f"🎯 Segnale: {signale}\n"
+            report += f"🎯 Segnale: {segnale}\n"
             report += f"📍 Entry: *{ultima_op.get('in', 0):,.1f}*\n\n"
             
-            # 3. ULTIME 2 OPERAZIONI REALI (NON FLAT)
+            # 3. ULTIME 2 OPERAZIONI REALI
             trade_reali = []
-            for h in reversed(history[:-1]): # Escludiamo l'ultima candela appena analizzata sopra
+            for h in reversed(history[:-1]): 
                 m_h = h['m'] * 100
                 if abs(m_h) > 0.30:
                     tipo = "LONG" if m_h > 0.30 else "SHORT"
                     punti = (h['out'] - h['in']) if tipo == "LONG" else (h['in'] - h['out'])
-                    pnl = (punti - 2) * mult # -2 punti slippage
+                    pnl = (punti - 2) * mult
                     trade_reali.append(f"• {h['d']} ({tipo})\n  In: {h['in']:,.1f} | Out: {h['out']:,.1f} | PnL: *{pnl:,.0f}€*")
                 if len(trade_reali) == 2: break
             
