@@ -19,11 +19,18 @@ def analizza_strumenti():
         data = json.loads(json_match.group(1))
         indices = data.get('indices', {})
         
+        # --- CONFIGURAZIONE SOGLIA ---
+        SOGLIA = 0.7  
+        # -----------------------------
+        
         moltiplicatori = {"SX50E": 10, "DAX": 25, "FTSEMIB": 5, "CAC": 10, "IBEX": 10}
         nomi_strumenti = {"SX50E": "EUROSTOXX 50", "DAX": "DAX 40", "FTSEMIB": "FTSE MIB 🇮🇹", "CAC": "CAC 40", "IBEX": "IBEX 35"}
 
-        # 1. LINK IN CIMA
+        # 1. LINK E NOTE DI CONFIGURAZIONE ALL'INIZIO
         report = "🌐 [ACCEDI ALLA DASHBOARD](https://tobiatidesca-art.github.io/dashboard/)\n"
+        report += f"⚙️ *Soglia calcolo:* {SOGLIA}\n"
+        report += f"⚠️ *Nota:* Per allineare i risultati sul sito, imposta la variabile `THRESHOLD` a {SOGLIA}.\n"
+        report += "───────────────────\n"
         report += "🏛 *QUANT-PRO REPORT*\n"
         report += "───────────────────\n"
         
@@ -38,10 +45,9 @@ def analizza_strumenti():
             data_oggi = ultima_op.get('d', datetime.now().strftime('%Y-%m-%d'))
             m_val = ultima_op['m'] * 100
             
-            # Correzione qui: variabile 'segnale'
-            if m_val > 0.30: 
+            if m_val > SOGLIA: 
                 segnale = "LONG 🟢"
-            elif m_val < -0.30: 
+            elif m_val < -SOGLIA: 
                 segnale = "SHORT 🔴"
             else: 
                 segnale = "FLAT ⚪"
@@ -55,10 +61,10 @@ def analizza_strumenti():
             trade_reali = []
             for h in reversed(history[:-1]): 
                 m_h = h['m'] * 100
-                if abs(m_h) > 0.30:
-                    tipo = "LONG" if m_h > 0.30 else "SHORT"
+                if abs(m_h) > SOGLIA:
+                    tipo = "LONG" if m_h > SOGLIA else "SHORT"
                     punti = (h['out'] - h['in']) if tipo == "LONG" else (h['in'] - h['out'])
-                    pnl = (punti - 2) * mult
+                    pnl = (punti - 2) * mult # -2 punti slippage
                     trade_reali.append(f"• {h['d']} ({tipo})\n  In: {h['in']:,.1f} | Out: {h['out']:,.1f} | PnL: *{pnl:,.0f}€*")
                 if len(trade_reali) == 2: break
             
@@ -69,8 +75,8 @@ def analizza_strumenti():
             pnl_20 = 0
             for h_20 in history[-20:]:
                 m_20 = h_20['m'] * 100
-                if abs(m_20) > 0.30:
-                    tipo_20 = "LONG" if m_20 > 0.30 else "SHORT"
+                if abs(m_20) > SOGLIA:
+                    tipo_20 = "LONG" if m_20 > SOGLIA else "SHORT"
                     punti_20 = (h_20['out'] - h_20['in']) if tipo_20 == "LONG" else (h_20['in'] - h_20['out'])
                     pnl_20 += (punti_20 - 2) * mult
 
