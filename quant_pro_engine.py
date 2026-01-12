@@ -1,5 +1,5 @@
 # =============================================================================
-# QUANT-PRO V7.7.0 - MULTI-LANGUAGE FULL SUPPORT
+# QUANT-PRO V8.4.0 - FULL INTEGRATION + REAL OHLC CANDLESTICKS
 # =============================================================================
 
 import os
@@ -17,23 +17,39 @@ def get_full_market_data():
         'DAX': '^GDAXI',
         'CAC': '^FCHI',
         'IBEX': '^IBEX',
-        'FTSEMIB': 'FTSEMIB.MI' 
+        'FTSEMIB': 'FTSEMIB.MI'
     }
     predictors = ['^GSPC', '^N225', '^VIX', 'ES=F']
     all_tickers = list(targets.values()) + predictors
 
     df_raw = yf.download(all_tickers, period="max", progress=False)
-    
+
     if isinstance(df_raw.columns, pd.MultiIndex):
         p_h = df_raw['Close']
         o_h = df_raw['Open']
+        h_h = df_raw['High']
+        l_h = df_raw['Low']
     else:
-        p_h = df_raw
-        o_h = df_raw
+        p_h = o_h = h_h = l_h = df_raw
+
+    # Estrazione dati per candele (ultimi 5 giorni) con MAX e MIN
+    def get_c_data(tk):
+        try:
+            subset = df_raw.xs(tk, axis=1, level=1).dropna().tail(5)
+            return [{
+                'd': i.strftime('%d %b'), 
+                'o': float(r['Open']), 
+                'h': float(r['High']), 
+                'l': float(r['Low']), 
+                'c': float(r['Close'])
+            } for i, r in subset.iterrows()]
+        except: return []
+
+    candle_data = {'sp': get_c_data('^GSPC'), 'nk': get_c_data('^N225'), 'fut': get_c_data('ES=F')}
 
     fut_h = yf.download('ES=F', period="5d", interval="1h", progress=False)
     if isinstance(fut_h.columns, pd.MultiIndex): fut_h.columns = fut_h.columns.get_level_values(0)
-    
+
     try:
         f_open = fut_h.between_time('00:00', '00:00')['Open'].iloc[-1]
         f_close = fut_h.between_time('08:00', '08:00')['Close'].iloc[-1]
@@ -41,18 +57,18 @@ def get_full_market_data():
     except:
         fut_chg_win = 0.0
 
-    data_out = {'indices': {}, 'live_preds': {}}
+    data_out = {'indices': {}, 'live_preds': {}, 'candles': candle_data}
 
     try:
         sp_series = p_h['^GSPC'].dropna()
         nk_series = p_h['^N225'].dropna()
         vix_series = p_h['^VIX'].dropna()
-        
+
         data_out['live_preds'] = {
-            'sp_val': float(sp_series.iloc[-1]), 
+            'sp_val': float(sp_series.iloc[-1]),
             'sp_chg': float(((sp_series.iloc[-1] / sp_series.iloc[-2]) - 1) * 100),
             'sp_dt': sp_series.index[-1].strftime('%d %b'),
-            'nk_val': float(nk_series.iloc[-1]), 
+            'nk_val': float(nk_series.iloc[-1]),
             'nk_chg': float(((nk_series.iloc[-1] / nk_series.iloc[-2]) - 1) * 100),
             'nk_dt': nk_series.index[-1].strftime('%d %b'),
             'fut_chg': float(fut_chg_win),
@@ -76,7 +92,7 @@ def get_full_market_data():
                 'd': dt.strftime('%Y-%m-%d'), 'm': float(row['MOM']), 'v': float(row['VIX']),
                 'in': float(row['InP']), 'out': float(row['OutP'])
             })
-        
+
         data_out['indices'][name] = {
             'history': history,
             'last_price': float(p_h[ticker].dropna().iloc[-1]),
@@ -98,7 +114,7 @@ html_template = f"""
     <style>
         body {{ background: #05080a; color: #e6edf3; font-family: 'Inter', sans-serif; padding: 20px; }}
         .header-main {{ background: linear-gradient(135deg, #0d1117 0%, #161b22 100%); border-bottom: 3px solid #238636; padding: 30px; border-radius: 15px; margin-bottom: 25px; }}
-        .card-custom {{ background: #0d1117; border: 1px solid #30363d; border-radius: 12px; padding: 20px; margin-bottom: 20px; height: 100%; }}
+        .card-custom {{ background: #0d1117; border: 1px solid #30363d; border-radius: 12px; padding: 20px; margin-bottom: 20px; }}
         .val-big-label {{ font-size: 0.85rem; color: #58a6ff; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }}
         .val-big-number {{ display: block; font-size: 2.8rem; font-family: 'Roboto Mono'; color: white; font-weight: 700; line-height: 1.1; }}
         .ts-label {{ font-size: 0.7rem; color: #8b949e; font-family: 'Roboto Mono'; text-transform: uppercase; margin-top: 5px; }}
@@ -108,6 +124,11 @@ html_template = f"""
         .signal-badge {{ font-size: 3.5rem; font-weight: 900; line-height: 1; }}
         .kpi-box {{ background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 12px; text-align: center; margin-bottom: 8px; }}
         .explainer-box {{ font-size: 0.75rem; color: #8b949e; line-height: 1.4; border-top: 1px solid #30363d; padding-top: 15px; margin-top: 15px; }}
+        .table-scroll-container {{ max-height: 450px; overflow-y: auto; border-radius: 8px; border: 1px solid #30363d; }}
+        .table thead th {{ position: sticky; top: 0; background-color: #161b22 !important; z-index: 10; border-bottom: 2px solid #30363d; }}
+        .candle-box {{ height: 220px; }}
+        @keyframes pulse-active {{ 0% {{ opacity: 1; }} 50% {{ opacity: 0.4; }} 100% {{ opacity: 1; }} }}
+        .pulse-active {{ animation: pulse-active 1.5s infinite ease-in-out; }}
     </style>
 </head>
 <body>
@@ -158,15 +179,15 @@ html_template = f"""
             <div class="col-md-2 text-end">
                 <span class="val-big-label" id="t-entry">Entry Price</span>
                 <h3 id="entry-val" class="text-white fw-900 mb-0">--</h3>
-                <div id="sig-time-label" class="ts-label" style="color:#f1c40f">SIGNAL AT 09:00 CET</div>
                 <div id="sig-val" class="signal-badge mt-1">---</div>
+                <div id="sig-date-label" class="ts-label" style="color:#f1c40f; font-weight: 700;">DATA: --</div>
             </div>
         </div>
     </div>
 
     <div class="row g-4">
         <div class="col-xl-3">
-            <div class="card-custom">
+            <div class="card-custom" style="height: 100%;">
                 <h6 class="val-big-label mb-3" id="t-param">Parameters</h6>
                 <div class="d-flex align-items-center mb-3">
                     <label class="me-3 fw-bold" id="t-thr">THRESHOLD:</label>
@@ -197,63 +218,60 @@ html_template = f"""
     </div>
 
     <div class="card-custom mt-4">
-        <span class="section-tag">Journal</span>
-        <div class="table-container mt-3">
+        <span class="section-tag">Journal (Full History)</span>
+        <div class="table-scroll-container mt-3">
             <table class="table table-dark table-hover m-0">
-                <thead class="sticky-top bg-dark border-bottom border-secondary"><tr id="table-head"></tr></thead>
+                <thead><tr id="table-head"></tr></thead>
                 <tbody id="auditBody"></tbody>
             </table>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-2">
+        <div class="col-md-4">
+            <div class="card-custom text-center">
+                <span class="val-big-label">S&P 500 (5D OHLC)</span>
+                <div class="candle-box mt-2"><canvas id="cSP"></canvas></div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-custom text-center">
+                <span class="val-big-label">NIKKEI 225 (5D OHLC)</span>
+                <div class="candle-box mt-2"><canvas id="cNK"></canvas></div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-custom text-center">
+                <span class="val-big-label">S&P FUTURE (5D OHLC)</span>
+                <div class="candle-box mt-2"><canvas id="cFUT"></canvas></div>
+            </div>
         </div>
     </div>
 
     <script>
         const data = {json.dumps(market_data)};
         let myChart = null;
+        let cCharts = {{}};
         let currentZoom = 0;
 
         const i18n = {{
-            en: {{ 
+            en: {{
                 entry:"Entry", sigTime: "SIGNAL AT 09:00 CET", param: "Parameters",
                 expT: "What is Threshold?",
-                expD: "Determines signal sensitivity. Increase it (e.g. 0.50) to filter noise for fewer, safer trades. Decrease it (e.g. 0.15) to be more aggressive on smaller moves.",
-                kpi:["Profit", "Win Rate", "Trades", "Max DD", "PF"], sig:["FLAT","LONG","SHORT"], cols:["DATE","TYPE","IN","OUT","PTS","PNL"] 
+                expD: "Determines signal sensitivity. Increase it to filter noise, decrease it to be aggressive.",
+                kpi:["Profit", "Win Rate", "Trades", "Max DD", "PF"], sig:["FLAT","LONG","SHORT"], cols:["DATE","TYPE","IN","OUT","PTS","PNL"]
             }},
-            it: {{ 
+            it: {{
                 entry:"Ingresso", sigTime: "SEGNALE ORE 09:00 CET", param: "Parametri",
                 expT: "A cosa serve la Soglia?",
-                expD: "Determina la sensibilità del segnale. Aumentala (es. 0.50) per filtrare il rumore e fare meno trade più sicuri. Diminuila (es. 0.15) per essere più aggressivo su movimenti piccoli.",
-                kpi:["Profitto", "Win Rate", "Trade", "Max DD", "PF"], sig:["FLAT","LONG","SHORT"], cols:["DATA","TIPO","IN","OUT","PTI","PNL"] 
+                expD: "Determina la sensibilità del segnale. Aumentala per filtrare il rumore, diminuiscila per essere più aggressivo.",
+                kpi:["Profitto", "Win Rate", "Trade", "Max DD", "PF"], sig:["FLAT","LONG","SHORT"], cols:["DATA","TIPO","IN","OUT","PTI","PNL"]
             }},
-            es: {{ 
-                entry:"Entrada", sigTime: "SEÑAL A LAS 09:00 CET", param: "Parámetros",
-                expT: "¿Qué ès el Umbral?",
-                expD: "Determina la sensibilidad de la señal. Auméntalo (ej. 0.50) para filtrar el ruido. Disminúyelo (ej. 0.15) para ser más agresivo ante movimientos pequeños.",
-                kpi:["Beneficio", "Ganas", "Operaciones", "Max DD", "PF"], sig:["FLAT","LONG","SHORT"], cols:["FECHA","TIPO","IN","OUT","PTS","PNL"] 
-            }},
-            fr: {{ 
-                entry:"Entrée", sigTime: "SIGNAL À 09:00 CET", param: "Paramètres",
-                expT: "C'est quoi le Seuil?",
-                expD: "Détermine la sensibilité du signal. Augmentez-le (ex. 0.50) pour filtrer le bruit. Diminuez-le (ex. 0.15) pour être plus agressif sur de petits mouvements.",
-                kpi:["Profit", "Win Rate", "Trades", "Max DD", "PF"], sig:["FLAT","LONG","SHORT"], cols:["DATE","TYPE","IN","OUT","PTS","PNL"] 
-            }},
-            de: {{ 
-                entry:"Einstieg", sigTime: "SIGNAL UM 09:00 CET", param: "Parameter",
-                expT: "Was ist der Schwellenwert?",
-                expD: "Bestimmt die Signalempfindlichkeit. Erhöhen (z.B. 0.50), um Rauschen zu filtern. Verringern (z.B. 0.15), um bei kleineren Bewegungen aggressiver zu sein.",
-                kpi:["Gewinn", "Win Rate", "Trades", "Max DD", "PF"], sig:["FLAT","LONG","SHORT"], cols:["DATUM","TYP","IN","OUT","PKT","PNL"] 
-            }},
-            zh: {{ 
-                entry:"入场价格", sigTime: "信号时间 09:00 CET", param: "参数设置",
-                expT: "什么是阈值？",
-                expD: "决定信号灵敏度。提高它（如 0.50）以过滤噪音，进行更少、更安全的交易。降低它（如 0.15）以在较小的波动中更具攻击性。",
-                kpi:["利润", "胜率", "交易次数", "最大回撤", "PF"], sig:["平仓","做多","做空"], cols:["日期","类型","入场","出场","点数","盈亏"] 
-            }},
-            ja: {{ 
-                entry:"エントリー", sigTime: "信号 09:00 CET", param: "パラメーター",
-                expT: "しきい値とは？",
-                expD: "信号の感度を決定します。ノイズを避けるには上げ（例：0.50）、より積極的に取引するには下げ（例：0.15）ます。",
-                kpi:["利益", "勝率", "取引数", "最大ドローダウン", "PF"], sig:["フラット","ロング","ショート"], cols:["日付","タイプ","入","出","ポイント","損益"] 
-            }}
+            es: {{ entry:"Entrada", sigTime: "SEÑAL A LAS 09:00 CET", param: "Parámetros", expT: "¿Qué ès el Umbral?", expD: "Determina la sensibilidad de la señal.", kpi:["Beneficio", "Ganas", "Operaciones", "Max DD", "PF"], sig:["FLAT","LONG","SHORT"], cols:["FECHA","TIPO","IN","OUT","PTS","PNL"] }},
+            fr: {{ entry:"Entrée", sigTime: "SIGNAL À 09:00 CET", param: "Paramètres", expT: "C'est quoi le Seuil?", expD: "Détermine la sensibilité du signal.", kpi:["Profit", "Win Rate", "Trades", "Max DD", "PF"], sig:["FLAT","LONG","SHORT"], cols:["DATE","TYPE","IN","OUT","PTS","PNL"] }},
+            de: {{ entry:"Einstieg", sigTime: "SIGNAL UM 09:00 CET", param: "Parameter", expT: "Was ist der Schwellenwert?", expD: "Bestimmt die Signalempfindlichkeit.", kpi:["Gewinn", "Win Rate", "Trades", "Max DD", "PF"], sig:["FLAT","LONG","SHORT"], cols:["DATUM","TYP","IN","OUT","PKT","PNL"] }},
+            zh: {{ entry:"入场价格", sigTime: "信号时间 09:00 CET", param: "参数设置", expT: "什么是阈值？", expD: "决定信号灵敏度。", kpi:["利润", "胜率", "交易次数", "最大回撤", "PF"], sig:["平仓","做多","做空"], cols:["日期","类型","入场","出场","点数","盈亏"] }},
+            ja: {{ entry:"エントリー", sigTime: "信号 09:00 CET", param: "パラメーター", expT: "しきい値とは？", expD: "信号の感度を決定します。", kpi:["利益", "勝率", "取引数", "最大ドローダウン", "PF"], sig:["フラット","ロング","ショート"], cols:["日付","タイプ","入","出","ポイント","損益"] }}
         }};
 
         function setZoom(btn, days) {{
@@ -269,6 +287,41 @@ html_template = f"""
         }}
         setInterval(updateClock, 1000);
 
+        // FUNZIONE PER DISEGNARE CANDELABRI PROFESSIONALI (CORPO + OMBRE)
+        function drawCandle(cid, cdata) {{
+            if(cCharts[cid]) cCharts[cid].destroy();
+            cCharts[cid] = new Chart(document.getElementById(cid), {{
+                type: 'bar',
+                data: {{
+                    labels: cdata.map(x => x.d),
+                    datasets: [
+                        {{
+                            label: 'Wick',
+                            data: cdata.map(x => [x.l, x.h]),
+                            backgroundColor: '#444',
+                            barPercentage: 0.05,
+                            grouped: false
+                        }},
+                        {{
+                            label: 'Body',
+                            data: cdata.map(x => [x.o, x.c]),
+                            backgroundColor: cdata.map(x => x.c >= x.o ? '#238636' : '#da3633'),
+                            barPercentage: 0.6,
+                            grouped: false
+                        }}
+                    ]
+                }},
+                options: {{
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {{ legend: {{ display: false }}, tooltip: {{ enabled: true }} }},
+                    scales: {{ 
+                        y: {{ beginAtZero: false, grid: {{ color: '#161b22' }}, ticks: {{ color: '#8b949e', font: {{ size: 9 }} }} }},
+                        x: {{ grid: {{ display: false }}, ticks: {{ color: '#8b949e', font: {{ size: 9 }} }} }}
+                    }}
+                }}
+            }});
+        }}
+
         function run() {{
             const asset = document.getElementById('assetS').value;
             const lang = document.getElementById('langS').value;
@@ -277,21 +330,36 @@ html_template = f"""
             const assetData = data.indices[asset];
             const preds = data.live_preds;
 
+            const historyFull = assetData.history;
+            const lastDate = historyFull[historyFull.length - 1].d;
+            document.getElementById('sig-date-label').innerText = "REF DATE: " + lastDate;
+
+            const todayStr = new Date().toISOString().split('T')[0];
+            const isLive = (lastDate === todayStr);
+
             document.getElementById('table-head').innerHTML = t.cols.map(c => `<th>${{c}}</th>`).join('');
             document.getElementById('t-entry').innerText = t.entry;
             document.getElementById('t-param').innerText = t.param;
-            document.getElementById('sig-time-label').innerText = t.sigTime;
             document.getElementById('exp-title').innerText = t.expT;
             document.getElementById('exp-desc').innerText = t.expD;
             document.getElementById('entry-val').innerText = "€ " + assetData.entry_price.toFixed(1);
 
             const momLive = (preds.sp_chg + preds.nk_chg + preds.fut_chg) / 300;
             document.getElementById('mom-val').innerText = (momLive*100).toFixed(2) + "%";
-            
+
             let sig = t.sig[0] + " ⚪"; let col = "#8b949e";
-            if (momLive > thr && preds.vix < 25) {{ sig = t.sig[1] + " 🟢"; col = "#238636"; }}
-            else if (momLive < -thr && preds.vix < 32) {{ sig = t.sig[2] + " 🔴"; col = "#da3633"; }}
-            document.getElementById('sig-val').innerText = sig; document.getElementById('sig-val').style.color = col;
+            let sigElement = document.getElementById('sig-val');
+            sigElement.classList.remove('pulse-active');
+
+            if (momLive > thr && preds.vix < 25) {{ 
+                sig = t.sig[1] + " 🟢"; col = "#238636"; 
+                if(isLive) sigElement.classList.add('pulse-active');
+            }}
+            else if (momLive < -thr && preds.vix < 32) {{ 
+                sig = t.sig[2] + " 🔴"; col = "#da3633"; 
+                if(isLive) sigElement.classList.add('pulse-active');
+            }}
+            sigElement.innerText = sig; sigElement.style.color = col;
 
             let cap = 20000, wins = 0, total = 0, mdd = 0, maxC = 20000, gP = 0, gL = 0;
             let mult = (asset === 'DAX' ? 25 : (asset === 'FTSEMIB' ? 5 : 10));
@@ -334,9 +402,9 @@ html_template = f"""
                     {{ type: 'line', label: 'Equity', data: eqD, borderColor: '#238636', borderWidth: 2.5, pointRadius: 0, yAxisID: 'y' }},
                     {{ type: 'line', label: asset, data: idxD, borderColor: 'rgba(241, 196, 15, 0.4)', borderWidth: 1.5, pointRadius: 0, yAxisID: 'y1' }}
                 ]}},
-                options: {{ 
+                options: {{
                     responsive: true, maintainAspectRatio: false, animation: false,
-                    scales: {{ 
+                    scales: {{
                         x: {{ ticks: {{ color: '#8b949e', maxTicksLimit: 10 }}, grid: {{ color: '#161b22' }} }},
                         y: {{ position: 'left', ticks: {{ color: '#238636' }}, grid: {{ color: '#30363d' }} }},
                         y1: {{ position: 'right', ticks: {{ color: '#f1c40f' }}, grid: {{ display: false }} }}
@@ -344,6 +412,11 @@ html_template = f"""
                     plugins: {{ legend: {{ display: false }} }}
                 }}
             }});
+
+            // Render Candele Real OHLC
+            drawCandle('cSP', data.candles.sp);
+            drawCandle('cNK', data.candles.nk);
+            drawCandle('cFUT', data.candles.fut);
         }}
         window.onload = () => {{ updateClock(); run(); }};
     </script>
@@ -354,4 +427,4 @@ html_template = f"""
 with open("index.html", "w", encoding="utf-8") as f:
     f.write(html_template)
 
-print("File index.html generato con successo!")
+print("Quant-Pro V8.4.0 generata con successo!")
