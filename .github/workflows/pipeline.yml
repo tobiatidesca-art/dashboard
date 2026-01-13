@@ -2,7 +2,8 @@ name: Quant-Pro Pipeline V7
 
 on:
   schedule:
-    - cron: '50 7 * * 1-5' # Gira alle 08:50 italiane
+    - cron: '17 8 * * *'
+   
   workflow_dispatch:      # Permette il lancio manuale
 
 jobs:
