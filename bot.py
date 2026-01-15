@@ -25,7 +25,7 @@ def analizza_strumenti():
         moltiplicatori = {"SX50E": 10, "DAX": 25, "FTSEMIB": 5, "CAC": 10, "IBEX": 10}
         nomi_strumenti = {"SX50E": "EUROSTOXX 50", "DAX": "DAX 40", "FTSEMIB": "FTSE MIB 🇮🇹", "CAC": "CAC 40", "IBEX": "IBEX 35"}
 
-        # 1. LINK SEMPRE IN ALTO (Come richiesto)
+        # 1. LINK SEMPRE IN ALTO
         report = f"🌐 *DASHBOARD LIVE:* [ACCEDI QUI]({DASHBOARD_URL})\n"
         report += "🏛 *QUANT-PRO ANNUAL REPORT*\n"
         report += "───────────────────\n"
@@ -62,7 +62,7 @@ def analizza_strumenti():
             if trade_reali:
                 report += "📊 *Ultime Operazioni:*\n" + "\n".join(trade_reali) + "\n\n"
 
-            # 3. TABELLA PERFORMANCE ANNUALE
+            # 3. TABELLA PERFORMANCE ANNUALE (DOPPIA COLONNA)
             pnl_per_anno = {}
             current_year = str(datetime.now().year)
             
@@ -74,14 +74,32 @@ def analizza_strumenti():
                     pnl = (punti - 2) * mult
                     pnl_per_anno[anno] = pnl_per_anno.get(anno, 0) + pnl
 
-            report += "📈 *PERFORMANCE ANNUALE:*\n"
-            for anno in sorted(pnl_per_anno.keys(), reverse=True):
-                val = pnl_per_anno[anno]
-                status = "✅" if val >= 0 else "🔻"
-                if anno == current_year:
-                    report += f"🚀 *{anno} (Corrente): {val:,.0f}€ {status}*\n"
-                else:
-                    report += f"• {anno}: {val:,.0f}€ {status}\n"
+            report += "📈 *PERFORMANCE STORICA:*\n"
+            anni_ordinati = sorted(pnl_per_anno.keys(), reverse=True)
+            
+            # Gestione Anno Corrente in riga singola
+            if anni_ordinati and anni_ordinati[0] == current_year:
+                val = pnl_per_anno[current_year]
+                emoji = "✅" if val >= 0 else "🔻"
+                report += f"`{current_year}(C): {val:+,0f}€ {emoji}`\n"
+                anni_ordinati.pop(0) # Rimuoviamo il corrente per processare il resto a coppie
+
+            # Processo il resto degli anni a coppie (2 per riga)
+            for i in range(0, len(anni_ordinati), 2):
+                # Primo anno della coppia
+                a1 = anni_ordinati[i]
+                v1 = pnl_per_anno[a1]
+                e1 = "✅" if v1 >= 0 else "🔻"
+                riga = f"`{a1}:{v1:+,0f}€{e1}`"
+                
+                # Secondo anno della coppia (se esiste)
+                if i + 1 < len(anni_ordinati):
+                    a2 = anni_ordinati[i+1]
+                    v2 = pnl_per_anno[a2]
+                    e2 = "✅" if v2 >= 0 else "🔻"
+                    riga += f" | `{a2}:{v2:+,0f}€{e2}`"
+                
+                report += riga + "\n"
             
             report += "───────────────────\n"
             
@@ -90,32 +108,28 @@ def analizza_strumenti():
         return f"❌ Errore analisi: {str(e)}"
 
 def invia_telegram():
-    # Recupera le credenziali dalle variabili d'ambiente di GitHub
     token = os.getenv('TELEGRAM_TOKEN')
     chat_id = os.getenv('TELEGRAM_CHAT_ID')
     
     if not token or not chat_id:
-        print("❌ Errore: TELEGRAM_TOKEN o TELEGRAM_CHAT_ID non configurati nei Secrets.")
+        print("❌ Errore: Credenziali Telegram mancanti nei Secrets.")
         return
         
     testo = analizza_strumenti()
-    
-    # URL API Telegram
     url = f"https://api.telegram.org/bot{token}/sendMessage"
     
     payload = {
         "chat_id": chat_id,
         "text": testo,
         "parse_mode": "Markdown",
-        "disable_web_page_preview": False  # Permette di vedere l'anteprima del sito se vuoi
+        "disable_web_page_preview": False
     }
     
     response = requests.post(url, json=payload)
-    
     if response.status_code == 200:
-        print("✅ Messaggio inviato correttamente!")
+        print("✅ Report inviato!")
     else:
-        print(f"❌ Errore invio Telegram: {response.text}")
+        print(f"❌ Errore: {response.text}")
 
 if __name__ == "__main__":
     invia_telegram()
