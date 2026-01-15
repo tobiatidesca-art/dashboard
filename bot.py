@@ -25,7 +25,7 @@ def analizza_strumenti():
         moltiplicatori = {"SX50E": 10, "DAX": 25, "FTSEMIB": 5, "CAC": 10, "IBEX": 10}
         nomi_strumenti = {"SX50E": "EUROSTOXX 50", "DAX": "DAX 40", "FTSEMIB": "FTSE MIB 🇮🇹", "CAC": "CAC 40", "IBEX": "IBEX 35"}
 
-        # 1. LINK SEMPRE IN ALTO
+        # 1. LINK IN ALTO
         report = f"🌐 *DASHBOARD LIVE:* [ACCEDI QUI]({DASHBOARD_URL})\n"
         report += "🏛 *QUANT-PRO ANNUAL REPORT*\n"
         report += "───────────────────\n"
@@ -39,7 +39,7 @@ def analizza_strumenti():
             data_oggi = ultima_op.get('d', datetime.now().strftime('%Y-%m-%d'))
             m_val = ultima_op['m'] * 100
             
-            # Calcolo Segnale
+            # Segnale Live
             if m_val > SOGLIA: segnale = "LONG 🟢"
             elif m_val < -SOGLIA: segnale = "SHORT 🔴"
             else: segnale = "FLAT ⚪"
@@ -62,7 +62,7 @@ def analizza_strumenti():
             if trade_reali:
                 report += "📊 *Ultime Operazioni:*\n" + "\n".join(trade_reali) + "\n\n"
 
-            # 3. TABELLA PERFORMANCE ANNUALE (DOPPIA COLONNA)
+            # 3. TABELLA PERFORMANCE ANNUALE (COMPATTA DOPPIA COLONNA)
             pnl_per_anno = {}
             current_year = str(datetime.now().year)
             
@@ -77,27 +77,29 @@ def analizza_strumenti():
             report += "📈 *PERFORMANCE STORICA:*\n"
             anni_ordinati = sorted(pnl_per_anno.keys(), reverse=True)
             
-            # Gestione Anno Corrente in riga singola
+            # Funzione interna per formattare i numeri con punti per migliaia e segno
+            def fmt(v):
+                return "{:+,.0f}".format(v).replace(",", ".")
+
+            # Gestione Anno Corrente (Riga Singola)
             if anni_ordinati and anni_ordinati[0] == current_year:
                 val = pnl_per_anno[current_year]
                 emoji = "✅" if val >= 0 else "🔻"
-                report += f"`{current_year}(C): {val:+,0f}€ {emoji}`\n"
-                anni_ordinati.pop(0) # Rimuoviamo il corrente per processare il resto a coppie
+                report += f"`{current_year}(C): {fmt(val)}€ {emoji}`\n"
+                anni_ordinati.pop(0)
 
-            # Processo il resto degli anni a coppie (2 per riga)
+            # Resto degli anni a coppie per compattare
             for i in range(0, len(anni_ordinati), 2):
-                # Primo anno della coppia
                 a1 = anni_ordinati[i]
                 v1 = pnl_per_anno[a1]
                 e1 = "✅" if v1 >= 0 else "🔻"
-                riga = f"`{a1}:{v1:+,0f}€{e1}`"
+                riga = f"`{a1}:{fmt(v1)}€{e1}`"
                 
-                # Secondo anno della coppia (se esiste)
                 if i + 1 < len(anni_ordinati):
                     a2 = anni_ordinati[i+1]
                     v2 = pnl_per_anno[a2]
                     e2 = "✅" if v2 >= 0 else "🔻"
-                    riga += f" | `{a2}:{v2:+,0f}€{e2}`"
+                    riga += f" | `{a2}:{fmt(v2)}€{e2}`"
                 
                 report += riga + "\n"
             
@@ -127,9 +129,9 @@ def invia_telegram():
     
     response = requests.post(url, json=payload)
     if response.status_code == 200:
-        print("✅ Report inviato!")
+        print("✅ Report inviato con successo!")
     else:
-        print(f"❌ Errore: {response.text}")
+        print(f"❌ Errore API Telegram: {response.text}")
 
 if __name__ == "__main__":
     invia_telegram()
